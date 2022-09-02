@@ -1,0 +1,15 @@
+{
+	"name": "scopic-auction",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"dev": "run-p dev-website dev-api-server",
+		"dev-website": "cd website && npm run dev",
+		"dev-api-server": "cd api-server && npm run dev",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Eric",
+	"devDependencies": {
+		"npm-run-all": "^4.1.5"
+	}
+}
