@@ -4,8 +4,14 @@ const { Schema } = mongoose;
 
 const itemSchema = new Schema(
 	{
-		name: String,
-		slug: String,
+		slug: { type: String, unique: true },
+		name: { type: String, index: true },
+		description: { type: String, index: true },
+		isDeactive: { type: Boolean, default: false },
+		basePrice: Number,
+		startDateTime: Date,
+		closeDateTime: Date,
+		images: [{ type: String }],
 	},
 	{
 		timestamps: true,
