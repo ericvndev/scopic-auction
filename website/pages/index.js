@@ -7,7 +7,9 @@ import styles from '../styles/Home.module.css';
 import Pagination from '../components/Pagination';
 
 const getStaticProps = async () => {
-	const res = await fetch('http://localhost:3000/v1/items/count');
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_HOST}/v1/items/count`
+	);
 	const data = await res.json();
 
 	return {
@@ -23,19 +25,25 @@ const Home = (props) => {
 	const [page, setPage] = useState(1);
 	const [items, setItems] = useState([]);
 
-	const fetchData = useCallback(async () => {
+	const fetchData = useCallback(async (page) => {
 		const rs = await fetch(
-			`http://localhost:3000/v1/items?limit=10&skip=${(page - 1) * 10}`
+			`${process.env.NEXT_PUBLIC_API_HOST}/v1/items?limit=10&skip=${
+				(page - 1) * 10
+			}`
 		);
 		const data = await rs.json();
 		setItems(data);
 		setLoading(false);
-	}, [page]);
+	}, []);
 
 	useEffect(() => {
 		setLoading(true);
-		fetchData();
+		fetchData(1);
 	}, []);
+
+	useEffect(() => {
+		fetchData(page);
+	}, [fetchData, page]);
 
 	return (
 		<div className={styles.container}>
@@ -50,13 +58,19 @@ const Home = (props) => {
 			{loading ? (
 				<div>Loading...</div>
 			) : (
-				<div>
+				<div className={styles.itemList}>
 					{items.map((item) => (
-						<ItemCard key={item._id} item={item} />
+						<div className={styles.item} key={item._id}>
+							<ItemCard item={item} />
+						</div>
 					))}
 				</div>
 			)}
-			<Pagination total={Math.ceil(totalItems / 10)} activePage={page} />
+			<Pagination
+				total={Math.ceil(totalItems / 10)}
+				activePage={page}
+				onChange={setPage}
+			/>
 		</div>
 	);
 };

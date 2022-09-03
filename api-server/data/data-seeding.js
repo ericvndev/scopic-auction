@@ -1,8 +1,8 @@
 const utils = require('../helpers/utils');
 const add = require('date-fns/add');
 const endOfDay = require('date-fns/endOfDay');
-const items = require('./items.json');
 
+const items = require('./items.json');
 const Item = require('../models/Item');
 
 exports = module.exports = async () => {

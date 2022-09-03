@@ -1,0 +1,15 @@
+.button {
+	width: 100%;
+	background: #ffffff;
+	border: none;
+	padding: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	cursor: pointer;
+}
+
+.primary {
+	background: #1f54c0;
+	color: #ffffff;
+}
