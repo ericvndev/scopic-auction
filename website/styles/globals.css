@@ -2,7 +2,7 @@ html,
 body {
 	padding: 0;
 	margin: 0;
-	font-family: Roboto, Helvetica Neue, sans-serif;
+	font-family: Noto Sans, Helvetica Neue, sans-serif;
 }
 
 a {
@@ -12,4 +12,9 @@ a {
 
 * {
 	box-sizing: border-box;
+}
+
+.container {
+	padding: 0 16px;
+	margin: 32px 0;
 }

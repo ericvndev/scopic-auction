@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import styles from '../../styles/Button.module.css';
 
 const Button = (props) => {
-	const { text, onClick, type } = props;
+	const { text, onClick, type, className } = props;
 
 	return (
 		<button
-			className={`${styles.button} ${styles[type]}`}
+			className={`${styles.button} ${styles[type]} ${className}`}
 			onClick={onClick}
 		>
 			{text}
@@ -19,11 +19,13 @@ const Button = (props) => {
 Button.propTypes = {
 	text: PropTypes.string,
 	onClick: PropTypes.func,
+	className: PropTypes.string,
 };
 
 Button.defaultProps = {
 	text: 'button',
 	onClick: () => {},
+	className: '',
 };
 
 export default Button;

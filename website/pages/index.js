@@ -32,7 +32,7 @@ const Home = (props) => {
 			}`
 		);
 		const data = await rs.json();
-		setItems(data);
+		setItems(data.data);
 		setLoading(false);
 	}, []);
 
@@ -46,14 +46,13 @@ const Home = (props) => {
 	}, [fetchData, page]);
 
 	return (
-		<div className={styles.container}>
+		<div className="container">
 			<Head>
 				<title>Home - Scopic Auction</title>
 				<meta
 					name="description"
 					content="Best auction collections in the world"
 				/>
-				<link rel="icon" href="/images/scopic-icon-32x32.png" />
 			</Head>
 			{loading ? (
 				<div>Loading...</div>

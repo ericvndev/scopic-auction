@@ -16,6 +16,7 @@
 .left {
 	display: flex;
 	align-items: center;
+	cursor: pointer;
 }
 
 .name {

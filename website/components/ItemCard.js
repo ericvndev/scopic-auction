@@ -13,7 +13,9 @@ const ItemCard = (props) => {
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
 		: 'https://picsum.photos/600/400';
 
-	const handleBidNowClick = () => {};
+	const handleBidNowClick = () => {
+		window.open(`/item/${item.slug}`);
+	};
 
 	const endDate = new Date(item.closeDateTime);
 

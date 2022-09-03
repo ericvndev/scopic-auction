@@ -1,0 +1,73 @@
+.detail {
+	display: flex;
+	width: 100%;
+	max-width: 1200px;
+	margin: 40px auto;
+	padding: 0 16px;
+}
+
+.imageContainer {
+	position: relative;
+	width: 50%;
+	margin-right: 40px;
+	flex-shrink: 0;
+}
+
+.imageContainer > span {
+	position: static !important;
+}
+
+.image {
+	width: 100% !important;
+	position: relative !important;
+	height: unset !important;
+}
+
+.info {
+	flex-shrink: 1;
+}
+
+.description {
+	line-height: 1.5;
+}
+
+.price {
+	font-weight: 600;
+	font-size: 18px;
+	margin-bottom: 16px;
+}
+
+.currentLabel {
+	font-weight: 600;
+	color: red;
+	font-size: 18px;
+	margin-bottom: 4px;
+}
+
+.currentPrice {
+	color: red;
+	font-size: 30px;
+	font-weight: 700;
+	margin-bottom: 4px;
+}
+
+.bidding {
+	margin-top: 40px;
+}
+
+.label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+.input {
+	width: 100%;
+	margin-bottom: 16px;
+	height: 40px;
+	padding: 0 8px;
+}
+
+.bidButton {
+	margin-bottom: 8px;
+}

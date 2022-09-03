@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import styles from '../styles/Pagination.module.css';
+
 const Pagination = (props) => {
 	const { total, activePage, onChange } = props;
 	const dummyArr = new Array(total);
@@ -11,9 +13,15 @@ const Pagination = (props) => {
 	};
 
 	return (
-		<div>
+		<div className={styles.pagination}>
 			{dummyArr.map((v, i) => (
-				<a key={i} onClick={() => onClickPage(i + 1)}>
+				<a
+					className={`${styles.number} ${
+						activePage === i + 1 ? styles.active : ''
+					}`}
+					key={i}
+					onClick={() => onClickPage(i + 1)}
+				>
 					{i + 1}
 				</a>
 			))}
