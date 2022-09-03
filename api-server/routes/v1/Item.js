@@ -5,9 +5,30 @@ const authCheck = require('../../middlewares/auth');
 
 const Item = require('../../models/Item');
 
+const generateFilter = (searchString) => {
+	return {
+		$or: [
+			{
+				name: {
+					$regex: `.*${searchString}.*`,
+					$options: 'ig',
+				},
+			},
+			{
+				description: {
+					$regex: `.*${searchString}.*`,
+					$options: 'ig',
+				},
+			},
+		],
+	};
+};
+
 router.get('/items/count', async (req, res) => {
 	try {
-		const itemsCount = await Item.countDocuments();
+		const { search } = req.query;
+		const filter = !!search ? generateFilter(search) : {};
+		const itemsCount = await Item.countDocuments(filter);
 		res.json({ error: '', total: itemsCount });
 	} catch (error) {
 		res.json({ error: error.message });
@@ -15,11 +36,18 @@ router.get('/items/count', async (req, res) => {
 });
 
 router.get('/items', async (req, res) => {
-	const { skip, limit } = req.query;
+	const { skip, limit, sort, search } = req.query;
 	try {
-		const items = await Item.find({}, null, {
+		const sortArr = sort.split('_');
+		const filter = !!search ? generateFilter(search) : {};
+		console.log(JSON.stringify(filter));
+
+		const items = await Item.find(filter, null, {
 			skip: parseInt(skip),
 			limit: parseInt(limit),
+			sort: {
+				[sortArr[0]]: sortArr[1] === 'asc' ? 1 : -1,
+			},
 		});
 
 		res.json({

@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
+import Head from 'next/head';
 import Image from 'next/image';
 
-import styles from '../../styles/Detail.module.css';
-import Head from 'next/head';
 import Button from '../../components/forms/Button';
+import Input from '../../components/forms/Input';
+
+import styles from '../../styles/Detail.module.css';
 
 const getServerSideProps = async (context) => {
 	const { slug } = context.query || {};
@@ -63,7 +64,7 @@ const DetailPage = (props) => {
 					<label htmlFor="bid-input" className={styles.label}>
 						Your price
 					</label>
-					<input
+					<Input
 						className={styles.input}
 						id="bid-input"
 						type="tel"
