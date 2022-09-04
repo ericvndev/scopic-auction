@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-const authCheck = require('../../middlewares/auth');
-
 const Item = require('../../models/Item');
 
 const generateFilter = (searchString) => {
@@ -27,7 +25,7 @@ const generateFilter = (searchString) => {
 router.get('/items/count', async (req, res) => {
 	try {
 		const { search } = req.query;
-		const filter = !!search ? generateFilter(search) : {};
+		const filter = search ? generateFilter(search) : {};
 		const itemsCount = await Item.countDocuments(filter);
 		res.json({ error: '', total: itemsCount });
 	} catch (error) {
@@ -39,7 +37,7 @@ router.get('/items', async (req, res) => {
 	const { skip, limit, sort, search } = req.query;
 	try {
 		const sortArr = sort.split('_');
-		const filter = !!search ? generateFilter(search) : {};
+		const filter = search ? generateFilter(search) : {};
 		console.log(JSON.stringify(filter));
 
 		const items = await Item.find(filter, null, {

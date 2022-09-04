@@ -13,7 +13,9 @@ import styles from '../styles/Home.module.css';
 const getServerSideProps = async (context) => {
 	const { search } = context.query;
 	const res = await fetch(
-		`${process.env.NEXT_PUBLIC_API_HOST}/v1/items/count?search=${search}`
+		`${process.env.NEXT_PUBLIC_API_HOST}/v1/items/count?search=${
+			search || ''
+		}`
 	);
 	const data = await res.json();
 
@@ -39,7 +41,7 @@ const Home = (props) => {
 		const rs = await fetch(
 			`${process.env.NEXT_PUBLIC_API_HOST}/v1/items?limit=10&skip=${
 				(page - 1) * 10
-			}&sort=${sortBy}&search=${searchString}`
+			}&sort=${sortBy}&search=${searchString || ''}`
 		);
 		const data = await rs.json();
 		setItems(data.data || []);

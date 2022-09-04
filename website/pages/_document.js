@@ -20,7 +20,7 @@ class MyDocument extends Document {
 					<link
 						rel="preconnect"
 						href="https://fonts.gstatic.com"
-						crossOrigin
+						crossOrigin="true"
 					/>
 					<link
 						href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap"
