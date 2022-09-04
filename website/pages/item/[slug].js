@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 import Image from 'next/image';
 
 import Button from '../../components/forms/Button';
 import Input from '../../components/forms/Input';
+
+import { UserContext } from '../../contexts';
 
 import styles from '../../styles/Detail.module.css';
 
@@ -31,9 +33,24 @@ const getServerSideProps = async (context) => {
 
 const DetailPage = (props) => {
 	const { item } = props;
+	const { user, showLoginForm } = useContext(UserContext);
 	const itemImage = item.images.length
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
 		: 'https://picsum.photos/600/400';
+
+	const handleSubmitBidClick = () => {
+		if (!user) {
+			showLoginForm();
+		}
+		console.log('submit');
+	};
+
+	const handleAutobidClick = () => {
+		if (!user) {
+			showLoginForm();
+		}
+		console.log('autobid');
+	};
 
 	return (
 		<div className={`container ${styles.detail}`}>
@@ -71,11 +88,12 @@ const DetailPage = (props) => {
 						placeholder={`Start from 10,000,000 USD`}
 					/>
 					<Button
-						text={'Bid now'}
+						text={'Submit Bid'}
 						type="primary"
 						className={styles.bidButton}
+						onClick={handleSubmitBidClick}
 					/>
-					<Button text={'Autobid'} />
+					<Button text={'Autobid'} onClick={handleAutobidClick} />
 				</div>
 			</div>
 		</div>

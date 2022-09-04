@@ -1,4 +1,10 @@
 .input {
 	height: 40px;
 	padding: 0 8px;
+	margin-bottom: 16px;
+}
+
+.full {
+	display: flex;
+	width: 100%;
 }

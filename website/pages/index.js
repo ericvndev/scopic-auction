@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 
@@ -129,7 +129,7 @@ const Home = (props) => {
 					)}
 				</div>
 			)}
-			{!!totalItems ? (
+			{totalItems ? (
 				<Pagination
 					total={Math.ceil(totalItems / 10)}
 					activePage={page}
@@ -144,6 +144,11 @@ const Home = (props) => {
 
 Home.propTypes = {
 	totalItems: PropTypes.number.isRequired,
+	searchString: PropTypes.string,
+};
+
+Home.defaultProps = {
+	searchString: '',
 };
 
 export { getServerSideProps };

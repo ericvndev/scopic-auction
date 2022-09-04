@@ -1,12 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 import Link from 'next/link';
-
 import Image from 'next/image';
+
+import { UserContext } from '../contexts';
 
 import styles from '../styles/Header.module.css';
 
-const Header = (props) => {
+const Header = () => {
+	const { showLoginForm, user } = useContext(UserContext);
+
 	return (
 		<header className={styles.header}>
 			<Link href="/">
@@ -22,7 +24,13 @@ const Header = (props) => {
 				</div>
 			</Link>
 			<div className={styles.right}>
-				<span>Login</span>
+				{user ? (
+					<span>{user.username}</span>
+				) : (
+					<span onClick={showLoginForm} className={styles.login}>
+						Login
+					</span>
+				)}
 			</div>
 		</header>
 	);
