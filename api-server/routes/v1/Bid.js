@@ -4,6 +4,7 @@ const router = express.Router();
 const authCheck = require('../../middlewares/auth');
 
 const Bid = require('../../models/Bid');
+const BidSetting = require('../../models/BidSetting');
 const Item = require('../../models/Item');
 
 const checkBid = (user, item, highestBid, amount) => {
@@ -23,9 +24,27 @@ const checkBid = (user, item, highestBid, amount) => {
 	}
 };
 
+const updateOrCreateBidSetting = async (user, item, enableAutoBid) => {
+	const foundBidSetting = await BidSetting.findOne({
+		user: user.username,
+		itemId: item._id,
+	});
+	if (foundBidSetting) {
+		foundBidSetting.enableAutoBid = enableAutoBid;
+		return foundBidSetting.save();
+	}
+	await BidSetting.create({
+		user: user.username,
+		itemId: item._id,
+		enableAutoBid,
+		maximumAutoBidAmount: (item.basePrice * 110) / 100,
+		alertPercent: 50,
+	});
+};
+
 router.post('/bid', authCheck, async (req, res) => {
 	try {
-		const { itemId, amount } = req.body;
+		const { itemId, enableAutoBid, amount } = req.body;
 		const item = await Item.findOne({ _id: itemId });
 		if (!item) {
 			return res.json({ error: 'Item not found' });
@@ -39,6 +58,7 @@ router.post('/bid', authCheck, async (req, res) => {
 			itemId,
 			amount,
 		});
+		updateOrCreateBidSetting(req.user, item, enableAutoBid);
 		res.json({ error: '', data: createdBid });
 	} catch (error) {
 		res.json({ error: error.message });

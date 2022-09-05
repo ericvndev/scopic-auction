@@ -5,6 +5,7 @@ const argon2 = require('argon2');
 const authCheck = require('../../middlewares/auth');
 
 const User = require('../../models/User');
+const BidSetting = require('../../models/BidSetting');
 const UserStore = require('../../data/users');
 const userStore = UserStore.getInstance();
 
@@ -49,12 +50,17 @@ router.get('/user/me', authCheck, async (req, res) => {
 		return res.status(401).json({ error: 'Unauthorized' });
 	}
 
+	const foundBidSettings = await BidSetting.find({
+		user: req.user.username,
+	}).lean();
+
 	res.json({
 		error: '',
 		data: {
 			username: req.user.username,
 			firstName: req.user.firstName,
 			lastName: req.user.lastName,
+			bidSettings: foundBidSettings,
 		},
 	});
 });

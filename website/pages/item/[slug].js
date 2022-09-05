@@ -40,6 +40,7 @@ const getServerSideProps = async (context) => {
 const DetailPage = (props) => {
 	const { item } = props;
 	const { user, showLoginForm } = useContext(UserContext);
+
 	const [checkedAutobid, setCheckedAutobid] = useState(false);
 	const [bids, setBids] = useState(item ? item.bids || [] : []);
 
@@ -50,6 +51,13 @@ const DetailPage = (props) => {
 		const { data: newItem } = await rs.json();
 		setBids(newItem.bids);
 	}, []);
+
+	useEffect(() => {
+		const bidSetting = user
+			? user.bidSettings.find((b) => b.itemId === item._id)
+			: { enableAutoBid: false };
+		setCheckedAutobid(bidSetting.enableAutoBid);
+	}, [user]);
 
 	useEffect(() => {
 		const socket = io(`http://localhost:3000?item=${item.slug}`);
@@ -107,6 +115,7 @@ const DetailPage = (props) => {
 		const body = {
 			amount,
 			itemId: item._id,
+			enableAutoBid: checkedAutobid,
 		};
 		try {
 			await submitBid(body, user);
