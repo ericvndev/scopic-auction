@@ -1,0 +1,52 @@
+.setting {
+	width: 100%;
+	max-width: 1200px;
+	margin: 40px auto;
+}
+
+.title {
+	text-align: center;
+}
+
+.table tr {
+	height: 40px;
+}
+
+.table th {
+	text-align: left;
+}
+
+.table .center {
+	text-align: center;
+}
+
+.table .right {
+	text-align: right;
+}
+
+.link {
+	text-decoration: underline;
+	color: #1f54c0;
+	cursor: pointer;
+}
+
+.inputGroup {
+	display: inline-flex;
+	align-items: center;
+}
+
+.inputGroup .input {
+	margin-bottom: 0;
+	margin-right: 8px;
+	width: 160px;
+	text-align: right;
+}
+
+.inputGroup .inputShort {
+	width: 80px;
+}
+
+.action {
+	cursor: pointer;
+	color: #1f54c0;
+}

@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { UserContext } from '../contexts';
 
@@ -10,6 +11,7 @@ import styles from '../styles/Header.module.css';
 
 const Header = () => {
 	const { showLoginForm, logout, user } = useContext(UserContext);
+	const router = useRouter();
 
 	return (
 		<header className={styles.header}>
@@ -31,7 +33,9 @@ const Header = () => {
 						options={[
 							{
 								text: 'Bid Settings',
-								handler: () => {},
+								handler: () => {
+									router.push('/setting');
+								},
 							},
 							{
 								text: 'Logout',

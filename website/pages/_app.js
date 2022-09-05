@@ -14,8 +14,8 @@ import Head from 'next/head';
 
 function MyApp({ Component, pageProps }) {
 	const [user, setUser] = useState(null);
-	const [showLogin, setShowLogin] = useState(false);
 	const router = useRouter();
+	const [showLogin, setShowLogin] = useState(false);
 
 	useEffect(() => {
 		if (localStorage) {

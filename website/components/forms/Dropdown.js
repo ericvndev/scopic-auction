@@ -36,7 +36,10 @@ const Dropdown = (props) => {
 							<li
 								className={styles.item}
 								key={opt.text}
-								onClick={opt.handler}
+								onClick={() => {
+									setShowDropdown(false);
+									opt.handler();
+								}}
 							>
 								{opt.text}
 							</li>

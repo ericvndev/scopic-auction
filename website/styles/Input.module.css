@@ -1,4 +1,5 @@
 .input {
+	display: inline-flex;
 	height: 40px;
 	padding: 0 8px;
 	margin-bottom: 16px;

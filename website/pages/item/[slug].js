@@ -53,9 +53,10 @@ const DetailPage = (props) => {
 	}, []);
 
 	useEffect(() => {
-		const bidSetting = user
+		let bidSetting = user
 			? user.bidSettings.find((b) => b.itemId === item._id)
-			: { enableAutoBid: false };
+			: null;
+		bidSetting = bidSetting || { enableAutoBid: false };
 		setCheckedAutobid(bidSetting.enableAutoBid);
 	}, [user]);
 
