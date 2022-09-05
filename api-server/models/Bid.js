@@ -13,6 +13,16 @@ const bidSchema = new Schema(
 	}
 );
 
+bidSchema.post('save', async (document) => {
+	const foundItem = await mongoose
+		.model('Item')
+		.findOne({ _id: document.itemId })
+		.lean();
+	if (foundItem) {
+		global.io.to(foundItem.slug).emit('refetch');
+	}
+});
+
 const Bid = mongoose.model('Bid', bidSchema);
 
 exports = module.exports = Bid;

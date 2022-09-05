@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
+const { createServer } = require('http');
 const path = require('path');
 const cors = require('cors');
+
 require('dotenv').config({ path: './.env' });
 
 const db = require('./data/conn');
@@ -18,7 +20,10 @@ app.get('/version', (req, res) => {
 
 app.use('/v1', require('./routes/v1'));
 
-app.listen(port, async () => {
+const httpServer = createServer(app);
+require('./middlewares/socket')(httpServer);
+
+httpServer.listen(port, async () => {
 	try {
 		// perform a database connection when server starts
 		await db.connect();

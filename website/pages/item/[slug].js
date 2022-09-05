@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 import Image from 'next/image';
+import { io } from 'socket.io-client';
 
 import Button from '../../components/forms/Button';
 import Input from '../../components/forms/Input';
@@ -41,6 +42,24 @@ const DetailPage = (props) => {
 	const { user, showLoginForm } = useContext(UserContext);
 	const [checkedAutobid, setCheckedAutobid] = useState(false);
 	const [bids, setBids] = useState(item ? item.bids || [] : []);
+
+	const refetchItem = useCallback(async () => {
+		const rs = await fetch(
+			`${process.env.NEXT_PUBLIC_API_HOST}/v1/item?filter={"slug": "${item.slug}"}&populate=bids`
+		);
+		const { data: newItem } = await rs.json();
+		setBids(newItem.bids);
+	}, []);
+
+	useEffect(() => {
+		const socket = io(`http://localhost:3000?item=${item.slug}`);
+		socket.on('refetch', refetchItem);
+		return () => {
+			socket.disconnect();
+			socket.close();
+		};
+	}, []);
+
 	const itemImage = item.images.length
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
 		: 'https://picsum.photos/600/400';
@@ -90,11 +109,7 @@ const DetailPage = (props) => {
 			itemId: item._id,
 		};
 		try {
-			const newBid = await submitBid(body, user);
-			const newBids = [...bids];
-			newBids.push({ ...newBid, user: user });
-			setBids(newBids);
-			alert('Successfully submit your bid!');
+			await submitBid(body, user);
 		} catch (error) {
 			console.log(error);
 			alert(error.message);
@@ -107,11 +122,12 @@ const DetailPage = (props) => {
 
 	const [highestBid] = [...bids].sort((a, b) => b.amount - a.amount);
 	const minPrice = Math.max(highestBid ? highestBid.amount : item.basePrice);
+	const title = `${item.name} - Scopic Auction`;
 
 	return (
 		<div className="container">
 			<Head>
-				<title>{item.name} - Scopic Auction</title>
+				<title>{title}</title>
 				<meta name="description" content={item.description} />
 			</Head>
 			<div className={styles.detail}>

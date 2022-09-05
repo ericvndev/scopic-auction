@@ -10,6 +10,7 @@ import Layout from '../components/Layout';
 import Modal from '../components/Modal';
 import Input from '../components/forms/Input';
 import Button from '../components/forms/Button';
+import Head from 'next/head';
 
 function MyApp({ Component, pageProps }) {
 	const [user, setUser] = useState(null);
@@ -101,6 +102,13 @@ function MyApp({ Component, pageProps }) {
 			}}
 		>
 			<Layout>
+				<Head>
+					<title>Scopic Auction</title>
+					<meta
+						name="description"
+						content="Best auction collections in the world"
+					/>
+				</Head>
 				<Component {...pageProps} />
 				<Modal show={showLogin} onClose={handleCloseModal}>
 					<div>
