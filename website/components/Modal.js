@@ -33,7 +33,7 @@ const Modal = (props) => {
 };
 
 Modal.propTypes = {
-	show: PropTypes.boolean,
+	show: PropTypes.bool,
 	children: PropTypes.node.isRequired,
 	onClose: PropTypes.func,
 };

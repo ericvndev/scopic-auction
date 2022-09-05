@@ -22,7 +22,10 @@ userSchema.statics.generateToken = function (user) {
 		{
 			username: user.username,
 		},
-		config.secretKey
+		config.secretKey,
+		{
+			expiresIn: '1 day',
+		}
 	);
 	return token;
 };

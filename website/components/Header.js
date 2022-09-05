@@ -4,10 +4,12 @@ import Image from 'next/image';
 
 import { UserContext } from '../contexts';
 
+import Dropdown from './forms/Dropdown';
+
 import styles from '../styles/Header.module.css';
 
 const Header = () => {
-	const { showLoginForm, user } = useContext(UserContext);
+	const { showLoginForm, logout, user } = useContext(UserContext);
 
 	return (
 		<header className={styles.header}>
@@ -25,7 +27,20 @@ const Header = () => {
 			</Link>
 			<div className={styles.right}>
 				{user ? (
-					<span>{user.username}</span>
+					<Dropdown
+						options={[
+							{
+								text: 'Bid Settings',
+								handler: () => {},
+							},
+							{
+								text: 'Logout',
+								handler: logout,
+							},
+						]}
+					>
+						<span>{user.username}</span>
+					</Dropdown>
 				) : (
 					<span onClick={showLoginForm} className={styles.login}>
 						Login

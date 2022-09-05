@@ -1,5 +1,5 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 
 import '../styles/globals.css';
@@ -71,9 +71,28 @@ function MyApp({ Component, pageProps }) {
 		}
 	};
 
+	const handleLogout = async () => {
+		try {
+			await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/v1/user/logout`, {
+				method: 'POST',
+				headers: {
+					Authorization: 'JWT ' + localStorage.getItem('token'),
+				},
+			});
+			localStorage.removeItem('token');
+			router.reload();
+		} catch (error) {
+			alert(error.message);
+		}
+	};
+
 	return (
 		<UserContext.Provider
-			value={{ user, showLoginForm: () => setShowLogin(true) }}
+			value={{
+				user,
+				showLoginForm: () => setShowLogin(true),
+				logout: handleLogout,
+			}}
 		>
 			<Layout>
 				<Component {...pageProps} />
@@ -100,10 +119,5 @@ function MyApp({ Component, pageProps }) {
 		</UserContext.Provider>
 	);
 }
-
-MyApp.propTypes = {
-	Component: PropTypes.node,
-	pageProps: PropTypes.object,
-};
 
 export default MyApp;
