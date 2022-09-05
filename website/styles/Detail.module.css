@@ -70,4 +70,17 @@
 
 .bidButton {
 	margin-bottom: 8px;
+	max-width: 180px;
+}
+
+.submitGroup {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.autobid {
+	margin-right: 32px;
+	flex-shrink: 0;
+	font-size: 18px;
 }

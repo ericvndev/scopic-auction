@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 import Image from 'next/image';
 
 import Button from '../../components/forms/Button';
 import Input from '../../components/forms/Input';
+import Checkbox from '../../components/forms/Checkbox';
 
 import { UserContext } from '../../contexts';
 
@@ -34,6 +35,7 @@ const getServerSideProps = async (context) => {
 const DetailPage = (props) => {
 	const { item } = props;
 	const { user, showLoginForm } = useContext(UserContext);
+	const [checkedAutobid, setCheckedAutobid] = useState(false);
 	const itemImage = item.images.length
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
 		: 'https://picsum.photos/600/400';
@@ -45,11 +47,8 @@ const DetailPage = (props) => {
 		console.log('submit');
 	};
 
-	const handleAutobidClick = () => {
-		if (!user) {
-			showLoginForm();
-		}
-		console.log('autobid');
+	const handleAutobidChange = (e) => {
+		setCheckedAutobid(e.target.checked);
 	};
 
 	return (
@@ -87,13 +86,22 @@ const DetailPage = (props) => {
 						type="tel"
 						placeholder={`Start from 10,000,000 USD`}
 					/>
-					<Button
-						text={'Submit Bid'}
-						type="primary"
-						className={styles.bidButton}
-						onClick={handleSubmitBidClick}
-					/>
-					<Button text={'Autobid'} onClick={handleAutobidClick} />
+					<div className={styles.submitGroup}>
+						<div className={styles.autobid}>
+							<Checkbox
+								id="autobid"
+								label="Enable Auto-bidding"
+								onChange={handleAutobidChange}
+								checked={checkedAutobid}
+							/>
+						</div>
+						<Button
+							text={'Submit Bid'}
+							type="primary"
+							className={styles.bidButton}
+							onClick={handleSubmitBidClick}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
