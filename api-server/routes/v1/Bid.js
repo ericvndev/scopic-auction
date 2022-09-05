@@ -7,7 +7,7 @@ const Bid = require('../../models/Bid');
 const Item = require('../../models/Item');
 
 const checkBid = (user, item, highestBid, amount) => {
-	if (highestBid.user === user.username) {
+	if (highestBid && highestBid.user === user.username) {
 		throw new Error('Your latest bid is already the highest bid');
 	}
 	if (

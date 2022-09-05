@@ -8,7 +8,7 @@
 
 .box {
 	cursor: pointer;
-	padding-left: 40px;
+	padding-left: 48px;
 }
 
 .box::before {

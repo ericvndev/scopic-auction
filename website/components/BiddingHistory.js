@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from '../styles/BiddingHistory.module.css';
 
+import { UserContext } from '../contexts';
+
 const BiddingHistory = (props) => {
+	const { user: currentUser } = useContext(UserContext);
 	const { bids } = props;
 	const sortedBid = [...bids].sort((a, b) => b.amount - a.amount);
 
@@ -33,13 +36,18 @@ const BiddingHistory = (props) => {
 								{`0${createdAt.getMonth() + 1}`.slice(-2)}/
 								{createdAt.getFullYear()} -{' '}
 								{`0${createdAt.getHours()}`.slice(-2)}:
-								{`0${createdAt.getMinutes()}`.slice(-2)}
+								{`0${createdAt.getMinutes()}`.slice(-2)}:
+								{`0${createdAt.getSeconds()}`.slice(-2)}
 							</td>
 							<td>
-								{user.firstName} {user.lastName}
+								{user.firstName} {user.lastName}{' '}
+								{currentUser &&
+								user.username === currentUser.username
+									? '(You)'
+									: ''}
 							</td>
 							<td className={styles.right}>
-								{bid.amount.toLocaleString()}
+								{bid.amount.toLocaleString()} USD
 							</td>
 						</tr>
 					);

@@ -45,7 +45,13 @@
 .price {
 	font-weight: 600;
 	font-size: 18px;
-	margin-bottom: 16px;
+	margin-bottom: 8px;
+}
+
+.bidend {
+	font-weight: 600;
+	font-size: 18px;
+	margin-top: 8px;
 }
 
 .currentLabel {

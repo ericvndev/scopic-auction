@@ -6,11 +6,14 @@ import Image from 'next/image';
 import Button from '../../components/forms/Button';
 import Input from '../../components/forms/Input';
 import Checkbox from '../../components/forms/Checkbox';
+import BiddingHistory from '../../components/BiddingHistory';
+import CountDown from '../../components/CountDown';
+
+import { formatDate } from '../../helpers/utils';
 
 import { UserContext } from '../../contexts';
 
 import styles from '../../styles/Detail.module.css';
-import BiddingHistory from '../../components/BiddingHistory';
 
 const getServerSideProps = async (context) => {
 	const { slug } = context.query || {};
@@ -37,9 +40,39 @@ const DetailPage = (props) => {
 	const { item } = props;
 	const { user, showLoginForm } = useContext(UserContext);
 	const [checkedAutobid, setCheckedAutobid] = useState(false);
+	const [bids, setBids] = useState(item ? item.bids || [] : []);
 	const itemImage = item.images.length
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
 		: 'https://picsum.photos/600/400';
+
+	const submitBid = async (body, user) => {
+		const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/v1/bid`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `JWT ${user.token}`,
+			},
+			body: JSON.stringify(body),
+		});
+		const { error, data } = await res.json();
+		if (error) {
+			throw new Error(error);
+		}
+		return data;
+	};
+
+	const validateBid = (amount) => {
+		if (highestBid.user && highestBid.user.username === user.username) {
+			return 'Your latest bid is already the highest bid';
+		}
+		if (amount <= minPrice) {
+			return (
+				'Your bid must be higher than ' +
+				minPrice.toLocaleString() +
+				' USD'
+			);
+		}
+	};
 
 	const handleSubmitBid = async (e) => {
 		e.preventDefault();
@@ -48,27 +81,22 @@ const DetailPage = (props) => {
 		}
 		const form = e.currentTarget;
 		const amount = parseInt(form.amount.value || '0');
-		const data = {
+		const error = validateBid(amount);
+		if (error) {
+			return alert(error);
+		}
+		const body = {
 			amount,
 			itemId: item._id,
 		};
 		try {
-			const res = await fetch(
-				`${process.env.NEXT_PUBLIC_API_HOST}/v1/bid`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `JWT ${user.token}`,
-					},
-					body: JSON.stringify(data),
-				}
-			);
-			const { error } = await res.json();
-			if (error) {
-				throw new Error(error);
-			}
+			const newBid = await submitBid(body, user);
+			const newBids = [...bids];
+			newBids.push({ ...newBid, user: user });
+			setBids(newBids);
+			alert('Successfully submit your bid!');
 		} catch (error) {
+			console.log(error);
 			alert(error.message);
 		}
 	};
@@ -76,6 +104,9 @@ const DetailPage = (props) => {
 	const handleAutobidChange = (e) => {
 		setCheckedAutobid(e.target.checked);
 	};
+
+	const [highestBid] = [...bids].sort((a, b) => b.amount - a.amount);
+	const minPrice = Math.max(highestBid ? highestBid.amount : item.basePrice);
 
 	return (
 		<div className="container">
@@ -98,11 +129,43 @@ const DetailPage = (props) => {
 					<div className={styles.price}>
 						Starting price: {item.basePrice.toLocaleString()} USD
 					</div>
-					<div className={styles.currentLabel}>
-						Current highest bidding price
-					</div>
-					<div className={styles.currentPrice}>10,000,000 USD</div>
-					<div className={styles.currentLabel}>by User 1</div>
+					<h4 className={styles.bidend}>
+						{new Date(item.closeDateTime) > new Date()
+							? `Bidding will end on`
+							: `Bidding ended on`}{' '}
+						{formatDate(item.closeDateTime)}
+					</h4>
+					{new Date(item.closeDateTime) > new Date() ? (
+						<CountDown
+							title={'Time left'}
+							endDate={new Date(item.closeDateTime)}
+						/>
+					) : (
+						''
+					)}
+					{highestBid ? (
+						<>
+							<div className={styles.currentLabel}>
+								Current highest bid
+							</div>
+							<div className={styles.currentPrice}>
+								{highestBid.amount.toLocaleString()} USD
+							</div>
+							<div className={styles.currentLabel}>
+								by{' '}
+								{highestBid.user
+									? `${highestBid.user.firstName} ${highestBid.user.lastName}`
+									: 'N/A'}
+								{user &&
+								user.username === highestBid.user.username
+									? ` (You)`
+									: ''}
+							</div>
+						</>
+					) : (
+						''
+					)}
+
 					<div className={styles.bidding}>
 						<label htmlFor="bid-input" className={styles.label}>
 							Your price
@@ -113,7 +176,7 @@ const DetailPage = (props) => {
 								name="amount"
 								id="bid-input"
 								type="tel"
-								placeholder={`Start from 10,000,000 USD`}
+								placeholder={`Start from ${minPrice.toLocaleString()} USD`}
 							/>
 							<div className={styles.submitGroup}>
 								<div className={styles.autobid}>
@@ -136,7 +199,7 @@ const DetailPage = (props) => {
 			</div>
 			<div className={styles.biddingHistory}>
 				<h2 className={styles.sectionTitle}>Bidding History</h2>
-				<BiddingHistory bids={item.bids} />
+				<BiddingHistory bids={bids} />
 			</div>
 		</div>
 	);

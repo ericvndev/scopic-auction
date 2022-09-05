@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import Image from 'next/image';
+
 import Button from './forms/Button';
+import { formatDate } from '../helpers/utils';
 
 import styles from '../styles/ItemCard.module.css';
 
@@ -37,9 +38,7 @@ const ItemCard = (props) => {
 					Start from {item.basePrice.toLocaleString()} USD
 				</div>
 				<div className={styles.date}>
-					Close at {endDate.getHours()}:{endDate.getMinutes()} -{' '}
-					{endDate.getDate()}/{endDate.getMonth() + 1}/
-					{endDate.getFullYear()}
+					Close at {formatDate(endDate)}
 				</div>
 			</div>
 			<div className={styles.footer}>

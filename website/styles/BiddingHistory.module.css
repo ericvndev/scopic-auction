@@ -6,6 +6,10 @@
 	text-align: left;
 }
 
+.table td {
+	white-space: nowrap;
+}
+
 .table .right {
 	text-align: right;
 }
