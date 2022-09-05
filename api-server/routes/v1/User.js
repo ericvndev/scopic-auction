@@ -10,9 +10,7 @@ const userStore = UserStore.getInstance();
 
 router.post('/user/login', async (req, res) => {
 	const { username, password } = req.body;
-	const foundUser = userStore
-		.getUsers()
-		.find((user) => user.username === username);
+	const foundUser = userStore.getUserByUsername(username);
 	if (foundUser) {
 		try {
 			const checkPassword = await argon2.verify(

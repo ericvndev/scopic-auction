@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 const Item = require('../../models/Item');
+const Bid = require('../../models/Bid');
+
+const UserStore = require('../../data/users');
+const userStore = UserStore.getInstance();
 
 const generateFilter = (searchString) => {
 	return {
@@ -38,7 +42,6 @@ router.get('/items', async (req, res) => {
 	try {
 		const sortArr = sort.split('_');
 		const filter = search ? generateFilter(search) : {};
-		console.log(JSON.stringify(filter));
 
 		const items = await Item.find(filter, null, {
 			skip: parseInt(skip),
@@ -57,18 +60,42 @@ router.get('/items', async (req, res) => {
 	}
 });
 
+const populateBids = async (item) => {
+	if (!item) {
+		return [];
+	}
+	const foundRelatedBids = await Bid.find({ itemId: item._id }).lean();
+	const users = userStore.getUsersByUsername(
+		foundRelatedBids.map((bid) => bid.user)
+	);
+	const usersMap = {};
+	users.forEach((user) => (usersMap[user.username] = user));
+	return foundRelatedBids.map((bid) => ({
+		...bid,
+		user: usersMap[bid.user],
+	}));
+};
+
 router.get('/item', async (req, res) => {
-	const { filter } = req.query;
+	const { filter, populate } = req.query;
 	const parsedFilter = JSON.parse(filter);
 
 	try {
-		const foundItem = await Item.findOne(parsedFilter);
+		const foundItem = await Item.findOne(parsedFilter).lean();
+
+		if (foundItem && populate) {
+			const populateArr = populate.split(',');
+			if (populateArr.includes('bids')) {
+				foundItem.bids = await populateBids(foundItem);
+			}
+		}
 
 		res.json({
 			error: '',
 			data: foundItem,
 		});
 	} catch (error) {
+		console.log(error);
 		res.json({ error: error.message });
 	}
 });

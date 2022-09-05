@@ -1,0 +1,15 @@
+.table {
+	width: 100%;
+}
+
+.table th {
+	text-align: left;
+}
+
+.table .right {
+	text-align: right;
+}
+
+.table tr {
+	height: 32px;
+}

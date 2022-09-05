@@ -32,7 +32,10 @@ function MyApp({ Component, pageProps }) {
 						userData.data &&
 						userData.data.username
 					) {
-						setUser(userData.data);
+						setUser({
+							...userData.data,
+							token: token,
+						});
 					}
 				})();
 			}
@@ -72,11 +75,14 @@ function MyApp({ Component, pageProps }) {
 	};
 
 	const handleLogout = async () => {
+		if (!user) {
+			return;
+		}
 		try {
 			await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/v1/user/logout`, {
 				method: 'POST',
 				headers: {
-					Authorization: 'JWT ' + localStorage.getItem('token'),
+					Authorization: 'JWT ' + user.token,
 				},
 			});
 			localStorage.removeItem('token');

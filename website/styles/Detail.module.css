@@ -6,6 +6,17 @@
 	padding: 0 16px;
 }
 
+.biddingHistory {
+	width: 100%;
+	max-width: 1200px;
+	margin: 40px auto;
+	padding: 0 16px;
+}
+
+.sectionTitle {
+	text-align: center;
+}
+
 .imageContainer {
 	position: relative;
 	width: 50%;

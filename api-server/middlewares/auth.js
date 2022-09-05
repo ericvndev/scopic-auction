@@ -7,9 +7,7 @@ const userStore = UserStore.getInstance();
 
 const handleJWTToken = async (token) => {
 	const userInfo = await jwt.verify(token, config.secretKey);
-	const foundUser = userStore
-		.getUsers()
-		.find((user) => user.username === userInfo.username);
+	const foundUser = userStore.getUserByUsername(userInfo.username);
 	if (foundUser) {
 		if (foundUser.blacklist && foundUser.blacklist.includes(token)) {
 			throw new Error('Invalid token');

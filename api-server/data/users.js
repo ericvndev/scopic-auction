@@ -22,6 +22,12 @@ class PrivateUserStore {
 	getUsers() {
 		return [...this.users];
 	}
+	getUsersByUsername(usernames) {
+		return this.users.filter((user) => usernames.includes(user.username));
+	}
+	getUserByUsername(username) {
+		return this.users.find((user) => user.username === username);
+	}
 	setUser(newUser) {
 		const foundIndex = this.users.findIndex(
 			(user) => user.username === newUser.username
