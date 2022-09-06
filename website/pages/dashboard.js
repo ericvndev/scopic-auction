@@ -1,20 +1,37 @@
 import React, { useEffect, useCallback, useState } from 'react';
+import PropTypes from 'prop-types';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { formatDate, GET_FROM_API, POST_TO_API } from '../helpers/utils';
 import { useUser } from '../lib/useUser';
+
 import Pagination from '../components/Pagination';
+import UpsertItem from '../components/UpsertItem';
+import Input from '../components/forms/Input';
 
 import styles from '../styles/Dashboard.module.css';
 
-const DashboardPage = () => {
+const getServerSideProps = (context) => {
+	const { search } = context.query;
+	return {
+		props: {
+			search: search || '',
+		},
+	};
+};
+
+let searchTimeout = null;
+
+const DashboardPage = (props) => {
+	const { search } = props;
 	const router = useRouter();
-	const searchString = router ? router.query.search : '';
+	const searchString = router ? router.query.search : search;
 	const { user } = useUser();
 	const [totalItems, setTotalItems] = useState(0);
 	const [items, setItems] = useState([]);
 	const [page, setPage] = useState(1);
+	const [upsertItem, setUpsertItem] = useState(null);
 
 	const fetchItems = useCallback(async (page, searchString) => {
 		try {
@@ -44,15 +61,12 @@ const DashboardPage = () => {
 
 	useEffect(() => {
 		if (user && user.isLoggedIn && user.role !== 'admin') {
-			router.push('/login');
-		} else {
-			fetchItems(1);
+			return router.push('/login');
 		}
-	}, [user]);
-
-	useEffect(() => {
-		fetchItems(page, searchString);
-	}, [page, searchString]);
+		if (user && user.isLoggedIn && user.role === 'admin') {
+			fetchItems(1, searchString);
+		}
+	}, [user, searchString]);
 
 	const handleDeleteClick = (item) => {
 		const confirmation = confirm(
@@ -63,13 +77,43 @@ const DashboardPage = () => {
 		}
 	};
 
+	const handleSearchBoxChange = (e) => {
+		const newSearchValue = e.target.value;
+		clearTimeout(searchTimeout);
+		searchTimeout = setTimeout(() => {
+			router.push(`/dashboard?search=${newSearchValue}`);
+			setPage(1);
+		}, 500);
+	};
+
 	const handleChangePage = (page) => {
 		setPage(page);
+		fetchItems(page);
+	};
+
+	const handleCloseUpsertModal = () => {
+		setUpsertItem(null);
+	};
+
+	const handleUpdated = () => {
+		fetchItems(page);
+		setUpsertItem(null);
 	};
 
 	return (
 		<div className={styles.dashboard}>
 			<h1 className={styles.title}>Dashboard</h1>
+			<div className={styles.filterBar}>
+				<Input
+					key={searchString}
+					autoFocus
+					className={styles.searchBox}
+					type="text"
+					placeholder="Search for items..."
+					defaultValue={searchString}
+					onChange={handleSearchBoxChange}
+				/>
+			</div>
 			<table className={styles.table}>
 				<colgroup>
 					<col style={{ width: '30%' }} />
@@ -110,7 +154,12 @@ const DashboardPage = () => {
 								{formatDate(item.closeDateTime)}
 							</td>
 							<td className={styles.right}>
-								<span className={styles.link}>Edit</span>
+								<span
+									className={styles.link}
+									onClick={() => setUpsertItem(item)}
+								>
+									Edit
+								</span>
 								&nbsp;&nbsp;
 								<span
 									className={styles.link}
@@ -128,8 +177,23 @@ const DashboardPage = () => {
 				activePage={page}
 				onChange={handleChangePage}
 			/>
+			<UpsertItem
+				item={upsertItem}
+				onClose={handleCloseUpsertModal}
+				onUpdated={handleUpdated}
+			/>
 		</div>
 	);
 };
+
+DashboardPage.propTypes = {
+	search: PropTypes.string,
+};
+
+DashboardPage.defaultProps = {
+	search: '',
+};
+
+export { getServerSideProps };
 
 export default DashboardPage;

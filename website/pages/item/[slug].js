@@ -137,6 +137,7 @@ const DetailPage = (props) => {
 	const [highestBid] = [...bids].sort((a, b) => b.amount - a.amount);
 	const minPrice = Math.max(highestBid ? highestBid.amount : item.basePrice);
 	const title = `${item.name} - Scopic Auction`;
+	const notStart = new Date(item.startDateTime) > new Date();
 
 	return (
 		<div className="container">
@@ -159,13 +160,20 @@ const DetailPage = (props) => {
 					<div className={styles.price}>
 						Starting price: {item.basePrice.toLocaleString()} USD
 					</div>
-					<h4 className={styles.bidend}>
-						{new Date(item.closeDateTime) > new Date()
-							? `Bidding will end on`
-							: `Bidding ended on`}{' '}
-						{formatDate(item.closeDateTime)}
-					</h4>
-					{new Date(item.closeDateTime) > new Date() ? (
+					{notStart ? (
+						<h4 className={styles.bidend}>
+							Bidding will start at{' '}
+							{formatDate(item.startDateTime)}
+						</h4>
+					) : (
+						<h4 className={styles.bidend}>
+							{new Date(item.closeDateTime) > new Date()
+								? `Bidding will end on`
+								: `Bidding ended on`}{' '}
+							{formatDate(item.closeDateTime)}
+						</h4>
+					)}
+					{new Date(item.closeDateTime) > new Date() && !notStart ? (
 						<CountDown
 							title={'Time left'}
 							endDate={new Date(item.closeDateTime)}
@@ -196,35 +204,39 @@ const DetailPage = (props) => {
 						''
 					)}
 
-					<div className={styles.bidding}>
-						<label htmlFor="bid-input" className={styles.label}>
-							Your price
-						</label>
-						<form onSubmit={handleSubmitBid}>
-							<Input
-								className={styles.input}
-								name="amount"
-								id="bid-input"
-								type="tel"
-								placeholder={`Start from ${minPrice.toLocaleString()} USD`}
-							/>
-							<div className={styles.submitGroup}>
-								<div className={styles.autobid}>
-									<Checkbox
-										id="autobid"
-										label="Enable Auto-bidding"
-										onChange={handleAutobidChange}
-										checked={checkedAutobid}
+					{!notStart ? (
+						<div className={styles.bidding}>
+							<label htmlFor="bid-input" className={styles.label}>
+								Your price
+							</label>
+							<form onSubmit={handleSubmitBid}>
+								<Input
+									className={styles.input}
+									name="amount"
+									id="bid-input"
+									type="tel"
+									placeholder={`Start from ${minPrice.toLocaleString()} USD`}
+								/>
+								<div className={styles.submitGroup}>
+									<div className={styles.autobid}>
+										<Checkbox
+											id="autobid"
+											label="Enable Auto-bidding"
+											onChange={handleAutobidChange}
+											checked={checkedAutobid}
+										/>
+									</div>
+									<Button
+										text={'Submit Bid'}
+										type="primary"
+										className={styles.bidButton}
 									/>
 								</div>
-								<Button
-									text={'Submit Bid'}
-									type="primary"
-									className={styles.bidButton}
-								/>
-							</div>
-						</form>
-					</div>
+							</form>
+						</div>
+					) : (
+						''
+					)}
 				</div>
 			</div>
 			<div className={styles.biddingHistory}>

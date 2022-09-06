@@ -1,8 +1,8 @@
 import React, { useContext, createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { GET_FROM_API, POST_TO_API } from '../helpers/utils';
-
 import { useRouter } from 'next/router';
+
+import { GET_FROM_API, POST_TO_API } from '../helpers/utils';
 
 const UserContext = createContext();
 
@@ -36,7 +36,7 @@ const useProviderUser = () => {
 				router.push('/login');
 			}
 		}
-	}, [router.pathname]);
+	}, []);
 
 	const login = async (username, password) => {
 		try {

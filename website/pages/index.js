@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
@@ -13,9 +14,15 @@ import styles from '../styles/Home.module.css';
 
 let searchTimeout = null;
 
-const Home = () => {
+const getServerSideProps = (context) => {
+	const { search } = context.query;
+	return { props: { search: search || '' } };
+};
+
+const HomePage = (props) => {
 	const router = useRouter();
-	const searchString = router ? router.query.search : '';
+	const { search } = props;
+	const searchString = router ? router.query.search : search;
 	const [sortBy, setSortBy] = useState('basePrice_desc');
 	const [loading, setLoading] = useState(false);
 	const [totalItems, setTotalItems] = useState(0);
@@ -39,30 +46,28 @@ const Home = () => {
 
 	useEffect(() => {
 		setLoading(true);
-		fetchData(1, sortBy);
-	}, []);
-
-	useEffect(() => {
-		setLoading(true);
-		fetchData(page, sortBy, searchString);
-	}, [fetchData, page, searchString, sortBy]);
-
-	useEffect(() => {
-		setPage(1);
-	}, [searchString, sortBy]);
+		fetchData(1, sortBy, searchString);
+	}, [searchString]);
 
 	const handleSearchBoxChange = (e) => {
 		const newSearchValue = e.target.value;
 		clearTimeout(searchTimeout);
-		searchTimeout = setTimeout(
-			() => router.push(`/?search=${newSearchValue}`),
-			500
-		);
+		searchTimeout = setTimeout(() => {
+			router.push(`/?search=${newSearchValue}`);
+			setPage(1);
+		}, 500);
 	};
 
 	const handleSortByChange = (e) => {
 		const newSortBy = e.target.value;
 		setSortBy(newSortBy);
+		setPage(1);
+		fetchData(1, newSortBy, searchString);
+	};
+
+	const handlePageChange = (page) => {
+		setPage(page);
+		fetchData(page, sortBy, searchString);
 	};
 
 	return (
@@ -122,7 +127,7 @@ const Home = () => {
 				<Pagination
 					total={Math.ceil(totalItems / 10)}
 					activePage={page}
-					onChange={setPage}
+					onChange={handlePageChange}
 				/>
 			) : (
 				''
@@ -131,4 +136,14 @@ const Home = () => {
 	);
 };
 
-export default Home;
+HomePage.propTypes = {
+	search: PropTypes.string,
+};
+
+HomePage.defaultProps = {
+	search: '',
+};
+
+export { getServerSideProps };
+
+export default HomePage;

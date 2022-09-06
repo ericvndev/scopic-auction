@@ -18,8 +18,6 @@ const ItemCard = (props) => {
 		window.open(`/item/${item.slug}`);
 	};
 
-	const endDate = new Date(item.closeDateTime);
-
 	return (
 		<div className={styles.card}>
 			<div className={styles.image}>
@@ -38,7 +36,10 @@ const ItemCard = (props) => {
 					Start from {item.basePrice.toLocaleString()} USD
 				</div>
 				<div className={styles.date}>
-					Close at {formatDate(endDate)}
+					Start at {formatDate(item.startDateTime)}
+				</div>
+				<div className={styles.date}>
+					Close at {formatDate(item.closeDateTime)}
 				</div>
 			</div>
 			<div className={styles.footer}>

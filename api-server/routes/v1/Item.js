@@ -108,4 +108,16 @@ router.delete('/item/:id', authCheck, async (req, res) => {
 	}
 });
 
+router.patch('/item/:id', authCheck, async (req, res) => {
+	const { id } = req.params;
+	const newItem = req.body;
+	try {
+		const updatedItem = await Item.updateOne({ _id: id }, newItem);
+		res.json({ error: '', data: updatedItem });
+	} catch (error) {
+		console.log(error);
+		res.json({ error: error.message });
+	}
+});
+
 exports = module.exports = router;

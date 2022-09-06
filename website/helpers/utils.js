@@ -11,7 +11,30 @@ const formatDate = (d) => {
 		`0${date.getMinutes()}`.slice(-2) +
 		':' +
 		`0${date.getSeconds()}`.slice(-2) +
-		` - ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+		` - ` +
+		`0${date.getDate()}`.slice(-2) +
+		'/' +
+		`0${date.getMonth() + 1}`.slice(-2) +
+		'/' +
+		date.getFullYear()
+	);
+};
+
+const formatDateISO = (d) => {
+	const date = new Date(d);
+	if (isNaN(date)) {
+		return '';
+	}
+	return (
+		`${date.getFullYear()}` +
+		'-' +
+		`0${date.getMonth() + 1}`.slice(-2) +
+		'-' +
+		`0${date.getDate()}`.slice(-2) +
+		'T' +
+		`0${date.getHours()}`.slice(-2) +
+		':' +
+		`0${date.getMinutes()}`.slice(-2)
 	);
 };
 
@@ -52,4 +75,4 @@ const POST_TO_API = async (path, body, method = 'POST') => {
 	return data;
 };
 
-export { formatDate, GET_FROM_API, POST_TO_API };
+export { formatDate, formatDateISO, GET_FROM_API, POST_TO_API };
