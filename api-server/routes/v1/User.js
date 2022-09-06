@@ -5,7 +5,6 @@ const argon2 = require('argon2');
 const authCheck = require('../../middlewares/auth');
 
 const User = require('../../models/User');
-const BidSetting = require('../../models/BidSetting');
 const UserStore = require('../../data/users');
 const userStore = UserStore.getInstance();
 
@@ -26,6 +25,7 @@ router.post('/user/login', async (req, res) => {
 
 			return res.json({ error: '', accessToken: token });
 		} catch (error) {
+			console.log(error);
 			return res.status(401).json({ error: error.message });
 		}
 	}
@@ -50,17 +50,28 @@ router.get('/user/me', authCheck, async (req, res) => {
 		return res.status(401).json({ error: 'Unauthorized' });
 	}
 
-	const foundBidSettings = await BidSetting.find({
-		user: req.user.username,
-	}).lean();
+	const user = { ...req.user };
+	delete user.hashedPassword;
 
 	res.json({
 		error: '',
+		data: user,
+	});
+});
+
+router.patch('/user/me', authCheck, async (req, res) => {
+	if (!req.user) {
+		return res.status(401).json({ error: 'Unauthorized' });
+	}
+
+	const user = userStore.getUserByUsername(req.user.username);
+	const newUser = { ...user, ...req.body };
+	delete newUser.hashedPassword;
+	userStore.setUser(newUser);
+	res.json({
+		error: '',
 		data: {
-			username: req.user.username,
-			firstName: req.user.firstName,
-			lastName: req.user.lastName,
-			bidSettings: foundBidSettings,
+			...newUser,
 		},
 	});
 });

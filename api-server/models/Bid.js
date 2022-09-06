@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const UserStore = require('../data/users');
+const userStore = UserStore.getInstance();
 
 const { Schema } = mongoose;
 
@@ -13,31 +15,57 @@ const bidSchema = new Schema(
 	}
 );
 
-// autobid handler
+const calculateBudgetLeft = async (users) => {
+	const rs = [];
+	for (const user of users) {
+		const budget = user.autobidBudget || 0;
+		const foundBids = await mongoose
+			.model('Bid')
+			.find({ itemId: { $in: user.enableAutobid || [] } });
+		if (foundBids) {
+			const bidByItemId = {};
+			foundBids.sort((a, b) => b.amount - a.amount);
+			foundBids.forEach((bid) => {
+				bidByItemId[bid.itemId] = bidByItemId[bid.itemId] || [];
+				bidByItemId[bid.itemId].push(bid);
+			});
+			const userSpent = Object.keys(bidByItemId)
+				.map((itemId) => bidByItemId[itemId][0])
+				.filter((bid) => !!bid && bid.user === user.username)
+				.reduce((total, bid) => total + bid.amount, 0);
+			rs.push({ ...user, budgetLeft: Math.max(0, budget - userSpent) });
+		} else {
+			rs.push({ ...user, budgetLeft: budget });
+		}
+	}
+	return rs;
+};
 
-const checkAndGetNewBid = (document, sortedBidSettings) => {
-	const [first, second] = sortedBidSettings;
+// autobid handler
+const checkAndGetNewBid = (document, sortedUsers) => {
+	const [first, second] = sortedUsers;
 
 	if (
-		first.user !== document.user &&
-		first.maximumAutoBidAmount <= document.amount
+		first.username !== document.user &&
+		first.budgetLeft <= document.amount
 	) {
 		return null;
 	}
 	let newBid = {
-		user: first.user,
+		user: first.username,
 		itemId: document.itemId,
 		amount: document.amount + 1,
 	};
 	if (
 		second &&
-		second.maximumAutoBidAmount &&
-		second.maximumAutoBidAmount > document.amount
+		second.budgetLeft &&
+		second.budgetLeft > document.amount &&
+		second.username !== document.user
 	) {
 		newBid = {
-			users: second.user,
+			user: second.username,
 			itemId: document.itemId,
-			amount: second.maximumAutoBidAmount,
+			amount: second.budgetLeft,
 		};
 	}
 	if (newBid.user !== document.user) {
@@ -48,20 +76,22 @@ const checkAndGetNewBid = (document, sortedBidSettings) => {
 
 bidSchema.post('save', async (document) => {
 	try {
-		const foundAllBidSettings = await mongoose
-			.model('BidSetting')
-			.find({ itemId: document.itemId, enableAutoBid: true })
-			.lean();
-		if (!foundAllBidSettings.length) {
+		const usersEnabledAutobid = userStore
+			.getUsers()
+			.filter(
+				(user) =>
+					user.enableAutobid &&
+					user.enableAutobid.includes(`${document.itemId}`)
+			);
+		if (!usersEnabledAutobid.length) {
 			return;
 		}
-		const sortedBidSettings = foundAllBidSettings.sort((a, b) =>
-			b.maximumAutoBidAmount === a.maximumAutoBidAmount
-				? a.createdAt - b.createdAt
-				: b.maximumAutoBidAmount - a.maximumAutoBidAmount
+		const calculatedUsers = await calculateBudgetLeft(usersEnabledAutobid);
+		const sortedUsers = [...calculatedUsers].sort(
+			(a, b) => b.budgetLeft - a.budgetLeft
 		);
 
-		let newBid = checkAndGetNewBid(document, sortedBidSettings);
+		let newBid = checkAndGetNewBid(document, sortedUsers);
 		if (newBid) {
 			await mongoose.model('Bid').create(newBid);
 		}

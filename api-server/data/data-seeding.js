@@ -17,7 +17,7 @@ exports = module.exports = async () => {
 					...item,
 					slug: utils.slugify(item.name),
 					startDateTime: new Date(2022, 8, 1, 0, 0, 0),
-					closeDateTime: endOfDay(add(new Date(), { days: 1 })),
+					closeDateTime: endOfDay(add(new Date(), { days: 30 })),
 					images: [`/uploads/${slug}.jpg`],
 				};
 			})

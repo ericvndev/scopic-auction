@@ -11,6 +11,9 @@ const userSchema = new Schema(
 		lastName: { type: String },
 		hashedPassword: { type: String },
 		isDeleted: { type: Boolean, default: false },
+		enableAutobid: [{ type: String }],
+		autobidBudget: Number,
+		budgetAlertPercent: Number,
 	},
 	{
 		timestamps: true,

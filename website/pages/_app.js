@@ -93,12 +93,40 @@ function MyApp({ Component, pageProps }) {
 		}
 	};
 
+	const handleUpdateUser = async (newUser) => {
+		if (!user) {
+			return;
+		}
+		try {
+			const res = await fetch(
+				`${process.env.NEXT_PUBLIC_API_HOST}/v1/user/me`,
+				{
+					method: 'PATCH',
+					headers: {
+						'content-type': 'application/json',
+						Authorization: 'JWT ' + user.token,
+					},
+					body: JSON.stringify(newUser),
+				}
+			);
+			const { error, data } = await res.json();
+			if (error) {
+				throw new Error(error);
+			}
+			setUser({ ...user, ...data });
+			return data;
+		} catch (error) {
+			alert(error.message);
+		}
+	};
+
 	return (
 		<UserContext.Provider
 			value={{
 				user,
 				showLoginForm: () => setShowLogin(true),
 				logout: handleLogout,
+				update: handleUpdateUser,
 			}}
 		>
 			<Layout>

@@ -39,7 +39,7 @@ const getServerSideProps = async (context) => {
 
 const DetailPage = (props) => {
 	const { item } = props;
-	const { user, showLoginForm } = useContext(UserContext);
+	const { user, showLoginForm, update: updateUser } = useContext(UserContext);
 
 	const [checkedAutobid, setCheckedAutobid] = useState(false);
 	const [bids, setBids] = useState(item ? item.bids || [] : []);
@@ -53,11 +53,9 @@ const DetailPage = (props) => {
 	}, []);
 
 	useEffect(() => {
-		let bidSetting = user
-			? user.bidSettings.find((b) => b.itemId === item._id)
-			: null;
-		bidSetting = bidSetting || { enableAutoBid: false };
-		setCheckedAutobid(bidSetting.enableAutoBid);
+		if (user && user.enableAutobid) {
+			setCheckedAutobid(user.enableAutobid.includes(item._id));
+		}
 	}, [user]);
 
 	useEffect(() => {
@@ -90,7 +88,11 @@ const DetailPage = (props) => {
 	};
 
 	const validateBid = (amount) => {
-		if (highestBid.user && highestBid.user.username === user.username) {
+		if (
+			highestBid &&
+			highestBid.user &&
+			highestBid.user.username === user.username
+		) {
 			return 'Your latest bid is already the highest bid';
 		}
 		if (amount <= minPrice) {
@@ -127,6 +129,16 @@ const DetailPage = (props) => {
 	};
 
 	const handleAutobidChange = (e) => {
+		if (!user) {
+			return showLoginForm();
+		}
+		let newEnableAutobid = [...(user.enableAutobid || [])];
+		if (e.target.checked) {
+			newEnableAutobid.push(item._id);
+		} else {
+			newEnableAutobid = newEnableAutobid.filter((i) => i !== item._id);
+		}
+		updateUser({ enableAutobid: newEnableAutobid });
 		setCheckedAutobid(e.target.checked);
 	};
 

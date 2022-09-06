@@ -8,45 +8,14 @@
 	text-align: center;
 }
 
-.table tr {
-	height: 40px;
+.form {
+	display: flex;
+	flex-direction: column;
+	max-width: 500px;
+	margin: 0 auto;
 }
 
-.table th {
-	text-align: left;
-}
-
-.table .center {
-	text-align: center;
-}
-
-.table .right {
-	text-align: right;
-}
-
-.link {
-	text-decoration: underline;
-	color: #1f54c0;
-	cursor: pointer;
-}
-
-.inputGroup {
-	display: inline-flex;
-	align-items: center;
-}
-
-.inputGroup .input {
-	margin-bottom: 0;
-	margin-right: 8px;
-	width: 160px;
-	text-align: right;
-}
-
-.inputGroup .inputShort {
-	width: 80px;
-}
-
-.action {
-	cursor: pointer;
-	color: #1f54c0;
+.label {
+	font-weight: 600;
+	margin-bottom: 8px;
 }
