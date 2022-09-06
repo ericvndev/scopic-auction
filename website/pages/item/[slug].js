@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -10,46 +10,39 @@ import Checkbox from '../../components/forms/Checkbox';
 import BiddingHistory from '../../components/BiddingHistory';
 import CountDown from '../../components/CountDown';
 
-import { formatDate } from '../../helpers/utils';
+import { formatDate, GET_FROM_API } from '../../helpers/utils';
 
-import { UserContext } from '../../contexts';
+import { useUser } from '../../lib/useUser';
 
 import styles from '../../styles/Detail.module.css';
 
-const getServerSideProps = async (context) => {
-	const { slug } = context.query || {};
-	const rs = await fetch(
-		`${process.env.NEXT_PUBLIC_API_HOST}/v1/item?filter={"slug": "${slug}"}&populate=bids`
-	);
-
-	const data = await rs.json();
-
-	if (!data || !data.data) {
-		return {
-			notFound: true,
-		};
-	}
+const getServerSideProps = (context) => {
+	const { query } = context;
 
 	return {
 		props: {
-			item: data.data,
+			slug: query.slug,
 		},
 	};
 };
 
 const DetailPage = (props) => {
-	const { item } = props;
-	const { user, showLoginForm, update: updateUser } = useContext(UserContext);
+	const { slug } = props;
+	const { user, updateUser } = useUser();
 
+	const [item, setItem] = useState(null);
 	const [checkedAutobid, setCheckedAutobid] = useState(false);
-	const [bids, setBids] = useState(item ? item.bids || [] : []);
+	const bids = item ? item.bids || [] : [];
 
-	const refetchItem = useCallback(async () => {
-		const rs = await fetch(
-			`${process.env.NEXT_PUBLIC_API_HOST}/v1/item?filter={"slug": "${item.slug}"}&populate=bids`
-		);
-		const { data: newItem } = await rs.json();
-		setBids(newItem.bids);
+	const fetchItem = useCallback(async () => {
+		try {
+			const data = await GET_FROM_API(
+				`/item?filter={"slug": "${slug}"}&populate=bids`
+			);
+			setItem(data);
+		} catch (error) {
+			console.log(error);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -59,13 +52,18 @@ const DetailPage = (props) => {
 	}, [user]);
 
 	useEffect(() => {
-		const socket = io(`http://localhost:3000?item=${item.slug}`);
-		socket.on('refetch', refetchItem);
+		const socket = io(`${process.env.NEXT_PUBLIC_API_HOST}?item=${slug}`);
+		socket.on('refetch', fetchItem);
+		fetchItem();
 		return () => {
 			socket.disconnect();
 			socket.close();
 		};
 	}, []);
+
+	if (!item) {
+		return <div>Loaing...</div>;
+	}
 
 	const itemImage = item.images.length
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
@@ -106,9 +104,6 @@ const DetailPage = (props) => {
 
 	const handleSubmitBid = async (e) => {
 		e.preventDefault();
-		if (!user) {
-			return showLoginForm();
-		}
 		const form = e.currentTarget;
 		const amount = parseInt(form.amount.value || '0');
 		const error = validateBid(amount);
@@ -129,9 +124,6 @@ const DetailPage = (props) => {
 	};
 
 	const handleAutobidChange = (e) => {
-		if (!user) {
-			return showLoginForm();
-		}
 		let newEnableAutobid = [...(user.enableAutobid || [])];
 		if (e.target.checked) {
 			newEnableAutobid.push(item._id);
@@ -244,7 +236,7 @@ const DetailPage = (props) => {
 };
 
 DetailPage.propTypes = {
-	item: PropTypes.object.isRequired,
+	slug: PropTypes.string.isRequired,
 };
 
 export { getServerSideProps };

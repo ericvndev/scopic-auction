@@ -23,7 +23,7 @@ router.post('/user/login', async (req, res) => {
 
 			const token = User.generateToken(foundUser);
 
-			return res.json({ error: '', accessToken: token });
+			return res.json({ error: '', data: token });
 		} catch (error) {
 			console.log(error);
 			return res.status(401).json({ error: error.message });
@@ -66,13 +66,11 @@ router.patch('/user/me', authCheck, async (req, res) => {
 
 	const user = userStore.getUserByUsername(req.user.username);
 	const newUser = { ...user, ...req.body };
-	delete newUser.hashedPassword;
-	userStore.setUser(newUser);
+	const updatedUser = userStore.setUser(newUser);
+
 	res.json({
 		error: '',
-		data: {
-			...newUser,
-		},
+		data: updatedUser,
 	});
 });
 

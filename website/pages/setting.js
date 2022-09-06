@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { UserContext } from '../contexts';
+import { useUser } from '../lib/useUser';
 
 import Input from '../components/forms/Input';
 import Button from '../components/forms/Button';
@@ -8,7 +8,7 @@ import Button from '../components/forms/Button';
 import styles from '../styles/Setting.module.css';
 
 const SettingPage = () => {
-	const { user, update: updateUser } = useContext(UserContext);
+	const { user, update: updateUser } = useUser();
 
 	if (!user) {
 		return '';

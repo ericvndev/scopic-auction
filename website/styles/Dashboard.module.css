@@ -1,0 +1,34 @@
+.dashboard {
+	padding: 0 32px;
+}
+
+.title {
+	text-align: center;
+}
+
+.table {
+	width: 100%;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-collapse: collapse;
+}
+
+.table tr {
+	height: 40px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.table th,
+.table td {
+	text-align: left;
+	padding: 0 8px;
+}
+
+.table .right {
+	text-align: right;
+}
+
+.link {
+	text-decoration: underline;
+	color: #1f54c0;
+	cursor: pointer;
+}

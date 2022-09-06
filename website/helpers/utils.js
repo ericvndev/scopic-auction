@@ -15,4 +15,41 @@ const formatDate = (d) => {
 	);
 };
 
-export { formatDate };
+const API_VERSION = 'v1';
+
+const GET_FROM_API = async (path) => {
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_HOST}/${API_VERSION}${path}`,
+		{
+			headers: {
+				Authorization: `JWT ${localStorage.getItem('token')}`,
+			},
+		}
+	);
+	const { error, data } = await res.json();
+	if (error) {
+		throw new Error(error);
+	}
+	return data;
+};
+
+const POST_TO_API = async (path, body, method = 'POST') => {
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_HOST}/${API_VERSION}${path}`,
+		{
+			method,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `JWT ${localStorage.getItem('token')}`,
+			},
+			body: body ? JSON.stringify(body) : undefined,
+		}
+	);
+	const { error, data } = await res.json();
+	if (error) {
+		throw new Error(error);
+	}
+	return data;
+};
+
+export { formatDate, GET_FROM_API, POST_TO_API };

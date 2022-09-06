@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import styles from '../styles/BiddingHistory.module.css';
 
-import { UserContext } from '../contexts';
+import { useUser } from '../lib/useUser';
 
 const BiddingHistory = (props) => {
-	const { user: currentUser } = useContext(UserContext);
+	const { user: currentUser } = useUser();
 	const { bids } = props;
 	const sortedBid = [...bids].sort((a, b) => b.amount - a.amount);
 

@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-
 import Head from 'next/head';
+
+import { GET_FROM_API } from '../helpers/utils';
+
 import ItemCard from '../components/ItemCard';
 import Pagination from '../components/Pagination';
 import Input from '../components/forms/Input';
@@ -10,42 +11,30 @@ import Select from '../components/forms/Select';
 
 import styles from '../styles/Home.module.css';
 
-const getServerSideProps = async (context) => {
-	const { search } = context.query;
-	const res = await fetch(
-		`${process.env.NEXT_PUBLIC_API_HOST}/v1/items/count?search=${
-			search || ''
-		}`
-	);
-	const data = await res.json();
-
-	return {
-		props: {
-			totalItems: data.total || 0,
-			searchString: search || '',
-		},
-	};
-};
-
 let searchTimeout = null;
 
-const Home = (props) => {
-	const { totalItems, searchString } = props;
+const Home = () => {
 	const router = useRouter();
+	const searchString = router ? router.query.search : '';
 	const [sortBy, setSortBy] = useState('basePrice_desc');
 	const [loading, setLoading] = useState(false);
+	const [totalItems, setTotalItems] = useState(0);
 	const [page, setPage] = useState(1);
 	const [items, setItems] = useState([]);
 
 	const fetchData = useCallback(async (page, sortBy, searchString) => {
-		const rs = await fetch(
-			`${process.env.NEXT_PUBLIC_API_HOST}/v1/items?limit=10&skip=${
-				(page - 1) * 10
-			}&sort=${sortBy}&search=${searchString || ''}`
-		);
-		const data = await rs.json();
-		setItems(data.data || []);
-		setLoading(false);
+		try {
+			const { items, total } = await GET_FROM_API(
+				`/items?limit=10&skip=${
+					(page - 1) * 10
+				}&sort=${sortBy}&search=${searchString || ''}`
+			);
+			setItems(items || []);
+			setTotalItems(total);
+			setLoading(false);
+		} catch (error) {
+			console.log(error);
+		}
 	}, []);
 
 	useEffect(() => {
@@ -142,14 +131,4 @@ const Home = (props) => {
 	);
 };
 
-Home.propTypes = {
-	totalItems: PropTypes.number.isRequired,
-	searchString: PropTypes.string,
-};
-
-Home.defaultProps = {
-	searchString: '',
-};
-
-export { getServerSideProps };
 export default Home;

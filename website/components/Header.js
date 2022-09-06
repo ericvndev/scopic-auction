@@ -1,16 +1,15 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-import { UserContext } from '../contexts';
-
+import { useUser } from '../lib/useUser';
 import Dropdown from './forms/Dropdown';
 
 import styles from '../styles/Header.module.css';
 
 const Header = () => {
-	const { showLoginForm, logout, user } = useContext(UserContext);
+	const { logout, user } = useUser();
 	const router = useRouter();
 
 	return (
@@ -46,9 +45,7 @@ const Header = () => {
 						<span>{user.username}</span>
 					</Dropdown>
 				) : (
-					<span onClick={showLoginForm} className={styles.login}>
-						Login
-					</span>
+					''
 				)}
 			</div>
 		</header>
