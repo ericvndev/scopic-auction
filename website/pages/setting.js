@@ -8,7 +8,7 @@ import Button from '../components/forms/Button';
 import styles from '../styles/Setting.module.css';
 
 const SettingPage = () => {
-	const { user, update: updateUser } = useUser();
+	const { user, updateUser } = useUser();
 
 	if (!user) {
 		return '';

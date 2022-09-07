@@ -45,7 +45,7 @@ const useProviderUser = () => {
 				password,
 			});
 			localStorage.setItem('token', accessToken);
-			router.push('/');
+			router.reload();
 		} catch (error) {
 			console.log(error);
 			alert(error.message);

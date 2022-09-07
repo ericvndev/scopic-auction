@@ -9,6 +9,7 @@ import { useUser } from '../lib/useUser';
 import Pagination from '../components/Pagination';
 import UpsertItem from '../components/UpsertItem';
 import Input from '../components/forms/Input';
+import Button from '../components/forms/Button';
 
 import styles from '../styles/Dashboard.module.css';
 
@@ -36,9 +37,9 @@ const DashboardPage = (props) => {
 	const fetchItems = useCallback(async (page, searchString) => {
 		try {
 			const { items, total } = await GET_FROM_API(
-				`/items?limit=10&skip=${(page - 1) * 10}&search=${
-					searchString || ''
-				}`
+				`/items?limit=10&skip=${
+					(page - 1) * 10
+				}&sort=createdAt_desc&search=${searchString || ''}`
 			);
 			setItems(items);
 			setTotalItems(total);
@@ -67,6 +68,10 @@ const DashboardPage = (props) => {
 			fetchItems(1, searchString);
 		}
 	}, [user, searchString]);
+
+	const handleCreateClick = () => {
+		setUpsertItem({});
+	};
 
 	const handleDeleteClick = (item) => {
 		const confirmation = confirm(
@@ -112,6 +117,12 @@ const DashboardPage = (props) => {
 					placeholder="Search for items..."
 					defaultValue={searchString}
 					onChange={handleSearchBoxChange}
+				/>
+				<Button
+					type="primary"
+					text="Create"
+					className={styles.create}
+					onClick={handleCreateClick}
 				/>
 			</div>
 			<table className={styles.table}>

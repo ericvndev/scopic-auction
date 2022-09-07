@@ -75,4 +75,35 @@ const POST_TO_API = async (path, body, method = 'POST') => {
 	return data;
 };
 
-export { formatDate, formatDateISO, GET_FROM_API, POST_TO_API };
+const POST_FORM_DATA_TO_API = async (path, body, method = 'POST') => {
+	if (!body) {
+		return null;
+	}
+	const formData = new FormData();
+	Object.keys(body).forEach((key) => {
+		formData.append(key, body[key]);
+	});
+	const res = await fetch(
+		`${process.env.NEXT_PUBLIC_API_HOST}/${API_VERSION}${path}`,
+		{
+			method,
+			headers: {
+				Authorization: `JWT ${localStorage.getItem('token')}`,
+			},
+			body: formData,
+		}
+	);
+	const { error, data } = await res.json();
+	if (error) {
+		throw new Error(error);
+	}
+	return data;
+};
+
+export {
+	formatDate,
+	formatDateISO,
+	GET_FROM_API,
+	POST_TO_API,
+	POST_FORM_DATA_TO_API,
+};

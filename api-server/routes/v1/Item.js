@@ -1,5 +1,20 @@
 const express = require('express');
+const path = require('path');
 const router = express.Router();
+const { slugify } = require('../../helpers/utils');
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, path.join(__dirname, '../../uploads'));
+	},
+	filename: function (req, file, cb) {
+		const { name } = req.body;
+		const slug = slugify(name);
+		cb(null, `${slug}.${file.originalname.split('.').pop()}`);
+	},
+});
+const upload = multer({ storage });
 
 const authCheck = require('../../middlewares/auth');
 
@@ -97,6 +112,52 @@ router.get('/item', authCheck, async (req, res) => {
 	}
 });
 
+const itemValidation = async (newItem, req, isUpdate) => {
+	const requiredFields = [
+		'name',
+		'description',
+		'basePrice',
+		'startDateTime',
+		'closeDateTime',
+	];
+	for (const field of requiredFields) {
+		if (!newItem[field]) {
+			throw new Error(`${field} is required`);
+		}
+	}
+	if (isNaN(newItem.basePrice) || newItem.basePrice < 0) {
+		throw new Error('Not a valid base price');
+	}
+	if (new Date(newItem.startDateTime) > new Date(newItem.closeDateTime)) {
+		throw new Error('Start date time must be before close date time');
+	}
+	if (isUpdate) {
+		return;
+	}
+	if (!req.file) {
+		throw new Error('Item image is required');
+	}
+	const checkName = await Item.exists({
+		name: { $regex: new RegExp(newItem.name, 'i') },
+	});
+	if (checkName) {
+		throw new Error(`Item "${newItem.name}" already exists`);
+	}
+};
+
+router.post('/item', authCheck, upload.single('image'), async (req, res) => {
+	const newItem = req.body;
+	try {
+		await itemValidation(newItem, req);
+		newItem.images = [`/uploads/${req.file.filename}`];
+		const updatedItem = await Item.create(newItem);
+		res.json({ error: '', data: updatedItem });
+	} catch (error) {
+		console.log(error);
+		res.json({ error: error.message });
+	}
+});
+
 router.delete('/item/:id', authCheck, async (req, res) => {
 	const { id } = req.params;
 	try {
@@ -108,16 +169,25 @@ router.delete('/item/:id', authCheck, async (req, res) => {
 	}
 });
 
-router.patch('/item/:id', authCheck, async (req, res) => {
-	const { id } = req.params;
-	const newItem = req.body;
-	try {
-		const updatedItem = await Item.updateOne({ _id: id }, newItem);
-		res.json({ error: '', data: updatedItem });
-	} catch (error) {
-		console.log(error);
-		res.json({ error: error.message });
+router.patch(
+	'/item/:id',
+	authCheck,
+	upload.single('image'),
+	async (req, res) => {
+		const { id } = req.params;
+		const newItem = req.body;
+		try {
+			await itemValidation(newItem, req, true);
+			if (req.file) {
+				newItem.images = [`/uploads/${req.file.filename}`];
+			}
+			const updatedItem = await Item.updateOne({ _id: id }, newItem);
+			res.json({ error: '', data: updatedItem });
+		} catch (error) {
+			console.log(error);
+			res.json({ error: error.message });
+		}
 	}
-});
+);
 
 exports = module.exports = router;

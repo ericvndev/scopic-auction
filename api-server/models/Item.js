@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
+const { slugify } = require('../helpers/utils');
 
 const { Schema } = mongoose;
 
 const itemSchema = new Schema(
 	{
-		slug: { type: String, unique: true },
+		slug: {
+			type: String,
+			default: function () {
+				return slugify(this.name);
+			},
+		},
 		name: { type: String, index: true },
 		description: { type: String, index: true },
 		isDeactive: { type: Boolean, default: false },

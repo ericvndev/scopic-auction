@@ -27,7 +27,12 @@ const Modal = (props) => {
 	return (
 		<div className={styles.modal}>
 			<div className={styles.backdrop} onClick={handleBackdropClick} />
-			<div className={styles.content}>{children}</div>
+			<div className={styles.content}>
+				{children}
+				<div className={styles.close} onClick={handleBackdropClick}>
+					✖
+				</div>
+			</div>
 		</div>
 	);
 };

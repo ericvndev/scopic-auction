@@ -46,10 +46,10 @@ const DetailPage = (props) => {
 	}, []);
 
 	useEffect(() => {
-		if (user && user.enableAutobid) {
+		if (user && user.enableAutobid && item) {
 			setCheckedAutobid(user.enableAutobid.includes(item._id));
 		}
-	}, [user]);
+	}, [user, item]);
 
 	useEffect(() => {
 		const socket = io(`${process.env.NEXT_PUBLIC_API_HOST}?item=${slug}`);

@@ -8,6 +8,14 @@
 
 .form {
 	display: flex;
+}
+
+.left {
+	margin-right: 32px;
+}
+
+.right {
+	display: flex;
 	flex-direction: column;
 	min-width: 360px;
 }
