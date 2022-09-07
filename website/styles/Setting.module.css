@@ -20,3 +20,26 @@
 	font-weight: 600;
 	margin-bottom: 8px;
 }
+
+.link {
+	text-decoration: underline;
+	color: #1f54c0;
+	cursor: pointer;
+}
+
+.autobid {
+	margin-top: 40px;
+}
+
+.table {
+	width: 100%;
+}
+
+.table th,
+.table td {
+	text-align: left;
+}
+
+.table .right {
+	text-align: right;
+}

@@ -18,25 +18,26 @@ const useProviderUser = () => {
 		if (localStorage) {
 			const token = localStorage.getItem('token');
 			if (token) {
-				(async () => {
-					try {
-						const user = await GET_FROM_API('/user/me');
-						setUser({
-							...user,
-							token: token,
-							isLoggedIn: true,
-						});
-					} catch (error) {
-						setUser(null);
-						router.push('/login');
-					}
-				})();
+				fetchUser(token);
 			} else {
 				setUser(null);
 				router.push('/login');
 			}
 		}
 	}, []);
+
+	const fetchUser = async () => {
+		try {
+			const user = await GET_FROM_API('/user/me');
+			setUser({
+				...user,
+				isLoggedIn: true,
+			});
+		} catch (error) {
+			setUser(null);
+			router.push('/login');
+		}
+	};
 
 	const login = async (username, password) => {
 		try {
@@ -83,6 +84,7 @@ const useProviderUser = () => {
 		login,
 		logout,
 		updateUser,
+		refetchUser: fetchUser,
 	};
 };
 

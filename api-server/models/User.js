@@ -13,8 +13,9 @@ const userSchema = new Schema(
 		isDeleted: { type: Boolean, default: false },
 		enableAutobid: [{ type: String }],
 		autobidBudget: Number,
-		role: { type: String, default: 'user' },
 		budgetAlertPercent: Number,
+		alerted: { type: Boolean, default: false },
+		role: { type: String, default: 'user' },
 	},
 	{
 		timestamps: true,

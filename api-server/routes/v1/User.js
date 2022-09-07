@@ -6,6 +6,7 @@ const authCheck = require('../../middlewares/auth');
 
 const User = require('../../models/User');
 const UserStore = require('../../data/users');
+const Item = require('../../models/Item');
 const userStore = UserStore.getInstance();
 
 router.post('/user/login', async (req, res) => {
@@ -45,13 +46,44 @@ router.post('/user/logout', authCheck, async (req, res) => {
 	res.json({ error: '' });
 });
 
+const populateAutobidItems = async (user) => {
+	const items = await Item.find({
+		_id: { $in: user.enableAutobid },
+	})
+		.populate({ path: 'highestBid' })
+		.lean()
+		.exec();
+	const usernames = items
+		.map((item) => (item.highestBid || {}).user)
+		.filter((username) => !!username);
+	const users = userStore.getUsersByUsername(usernames);
+	return items.map((item) => ({
+		...item,
+		highestBid: item.highestBid
+			? {
+					...item.highestBid,
+					user: users.find(
+						(user) => user.username === item.highestBid.user
+					),
+			  }
+			: null,
+	}));
+};
+
 router.get('/user/me', authCheck, async (req, res) => {
 	if (!req.user) {
 		return res.status(401).json({ error: 'Unauthorized' });
 	}
+	const { populate } = req.query;
 
 	const user = { ...req.user };
 	delete user.hashedPassword;
+	if (populate) {
+		const populateArr = populate.split(',');
+		if (populateArr.includes('autobidItems')) {
+			user.autobidItems = await populateAutobidItems(user);
+		}
+	}
 
 	res.json({
 		error: '',
@@ -62,6 +94,9 @@ router.get('/user/me', authCheck, async (req, res) => {
 router.patch('/user/me', authCheck, async (req, res) => {
 	if (!req.user) {
 		return res.status(401).json({ error: 'Unauthorized' });
+	}
+	if (req.body.autobidBudget || req.body.alertPercent) {
+		req.body.alerted = false;
 	}
 
 	const user = userStore.getUserByUsername(req.user.username);

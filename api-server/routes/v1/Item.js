@@ -19,10 +19,6 @@ const upload = multer({ storage });
 const authCheck = require('../../middlewares/auth');
 
 const Item = require('../../models/Item');
-const Bid = require('../../models/Bid');
-
-const UserStore = require('../../data/users');
-const userStore = UserStore.getInstance();
 
 const generateFilter = (searchString) => {
 	return {
@@ -50,7 +46,7 @@ router.get('/items', authCheck, async (req, res) => {
 		const filter = search ? generateFilter(search) : {};
 
 		const itemsCount = await Item.countDocuments(filter);
-		const items = await Item.find(filter, null, {
+		let items = await Item.find(filter, null, {
 			skip: parseInt(skip),
 			limit: parseInt(limit),
 			sort: sort
@@ -72,39 +68,25 @@ router.get('/items', authCheck, async (req, res) => {
 	}
 });
 
-const populateBids = async (item) => {
-	if (!item) {
-		return [];
-	}
-	const foundRelatedBids = await Bid.find({ itemId: item._id }).lean();
-	const users = userStore.getUsersByUsername(
-		foundRelatedBids.map((bid) => bid.user)
-	);
-	const usersMap = {};
-	users.forEach((user) => (usersMap[user.username] = user));
-	return foundRelatedBids.map((bid) => ({
-		...bid,
-		user: usersMap[bid.user],
-	}));
-};
-
 router.get('/item', authCheck, async (req, res) => {
 	const { filter, populate } = req.query;
 	const parsedFilter = JSON.parse(filter);
 
 	try {
-		const foundItem = await Item.findOne(parsedFilter).lean();
+		const foundItem = await Item.findOne(parsedFilter);
+		const data = foundItem.toJSON();
 
 		if (foundItem && populate) {
 			const populateArr = populate.split(',');
 			if (populateArr.includes('bids')) {
-				foundItem.bids = await populateBids(foundItem);
+				const bids = await foundItem.populateBids();
+				data.bids = bids;
 			}
 		}
 
 		res.json({
 			error: '',
-			data: foundItem,
+			data,
 		});
 	} catch (error) {
 		console.log(error);

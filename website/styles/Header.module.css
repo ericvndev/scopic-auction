@@ -19,6 +19,19 @@
 	cursor: pointer;
 }
 
+.right {
+	display: flex;
+	align-items: center;
+}
+
+.notification {
+	margin-right: 16px;
+}
+
+.notiicon {
+	font-size: 30px;
+}
+
 .name {
 	display: inline-block;
 	letter-spacing: 1px;

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styles from '../../styles/Dropdown.module.css';
 
 const Dropdown = (props) => {
-	const { children, options } = props;
+	const { children, options, onShow } = props;
 	const refWrapper = useRef();
 	const [showDropdown, setShowDropdown] = useState(false);
 
@@ -24,11 +24,16 @@ const Dropdown = (props) => {
 
 	const handleTriggerShow = () => {
 		setShowDropdown(true);
+		if (onShow) {
+			onShow();
+		}
 	};
 
 	return (
 		<div className={`${styles.wrapper} js-dropdown`} ref={refWrapper}>
-			<div onClick={handleTriggerShow}>{children}</div>
+			<div className={styles.trigger} onClick={handleTriggerShow}>
+				{children}
+			</div>
 			{showDropdown ? (
 				<div className={`${styles.dropdown}`}>
 					<ul className={styles.list}>
@@ -56,10 +61,12 @@ const Dropdown = (props) => {
 Dropdown.propTypes = {
 	children: PropTypes.node.isRequired,
 	options: PropTypes.array,
+	onShow: PropTypes.func,
 };
 
 Dropdown.defaultProps = {
 	options: [],
+	onShow: null,
 };
 
 export default Dropdown;

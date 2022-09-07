@@ -15,85 +15,116 @@ const bidSchema = new Schema(
 	}
 );
 
-const calculateBudgetLeft = async (users) => {
+const calculateBudgetLeft = async (users, currentItemId) => {
 	const rs = [];
 	for (const user of users) {
 		const budget = user.autobidBudget || 0;
-		const foundBids = await mongoose
-			.model('Bid')
-			.find({ itemId: { $in: user.enableAutobid || [] } });
-		if (foundBids) {
-			const bidByItemId = {};
-			foundBids.sort((a, b) => b.amount - a.amount);
-			foundBids.forEach((bid) => {
-				bidByItemId[bid.itemId] = bidByItemId[bid.itemId] || [];
-				bidByItemId[bid.itemId].push(bid);
-			});
-			const userSpent = Object.keys(bidByItemId)
-				.map((itemId) => bidByItemId[itemId][0])
-				.filter((bid) => !!bid && bid.user === user.username)
-				.reduce((total, bid) => total + bid.amount, 0);
-			rs.push({ ...user, budgetLeft: Math.max(0, budget - userSpent) });
-		} else {
-			rs.push({ ...user, budgetLeft: budget });
-		}
+		const autobidItems = await mongoose
+			.model('Item')
+			.find({
+				$and: [
+					{ _id: { $in: user.enableAutobid } },
+					{ _id: { $ne: currentItemId } },
+				],
+			})
+			.populate('highestBid')
+			.lean();
+		const userSpent = autobidItems
+			.filter(
+				(item) =>
+					item.highestBid && item.highestBid.user === user.username
+			)
+			.reduce((total, item) => total + item.highestBid.amount, 0);
+		rs.push({ ...user, budgetLeft: Math.max(0, budget - userSpent) });
 	}
 	return rs;
 };
 
 // autobid handler
-const checkAndGetNewBid = (document, sortedUsers) => {
-	const [first, second] = sortedUsers;
+const calculateNewAutobid = async (document, sortedUsers) => {
+	let validUser = null;
+	while (!validUser && sortedUsers.length) {
+		const temp = sortedUsers.pop();
+		if (temp.username !== document.user) {
+			validUser = temp;
+		}
+	}
 
-	if (
-		first.username !== document.user &&
-		first.budgetLeft <= document.amount
-	) {
+	if (validUser.budgetLeft < document.amount + 1) {
 		return null;
 	}
-	let newBid = {
-		user: first.username,
-		itemId: document.itemId,
-		amount: document.amount + 1,
-	};
-	if (
-		second &&
-		second.budgetLeft &&
-		second.budgetLeft > document.amount &&
-		second.username !== document.user
-	) {
+
+	let newBid = null;
+	if (validUser) {
 		newBid = {
-			user: second.username,
+			user: validUser.username,
 			itemId: document.itemId,
-			amount: second.budgetLeft,
+			amount: sortedUsers.length //have another auto-bidding user has higher budget left
+				? validUser.budgetLeft
+				: document.amount + 1,
 		};
 	}
-	if (newBid.user !== document.user) {
-		return newBid;
+
+	return newBid;
+};
+
+const checkForOutOfBudgetUsers = async (users, amount) => {
+	for (const user of users) {
+		if (user.budgetLeft <= amount) {
+			await mongoose.model('Notification').create({
+				user: user.username,
+				content: `Your auto-bidding budget has run out. Auto-bidding will now stop.`,
+			});
+			userStore.setUser({ username: user.username, enableAutobid: [] });
+		}
 	}
-	return null;
 };
 
 bidSchema.post('save', async (document) => {
 	try {
-		const usersEnabledAutobid = userStore
+		const autobidUsers = userStore
 			.getUsers()
 			.filter(
 				(user) =>
 					user.enableAutobid &&
 					user.enableAutobid.includes(`${document.itemId}`)
 			);
-		if (!usersEnabledAutobid.length) {
+		if (!autobidUsers.length) {
 			return;
 		}
-		const calculatedUsers = await calculateBudgetLeft(usersEnabledAutobid);
+		const calculatedUsers = await calculateBudgetLeft(
+			autobidUsers,
+			document.itemId
+		);
 		const sortedUsers = [...calculatedUsers].sort(
 			(a, b) => b.budgetLeft - a.budgetLeft
 		);
 
-		let newBid = checkAndGetNewBid(document, sortedUsers);
+		await checkForOutOfBudgetUsers(calculatedUsers, document.amount);
+		let newBid = await calculateNewAutobid(document, sortedUsers);
 		if (newBid) {
 			await mongoose.model('Bid').create(newBid);
+		}
+	} catch (error) {
+		console.log(error);
+	}
+});
+
+// notify budget
+bidSchema.post('save', async (document) => {
+	try {
+		const user = userStore.getUserByUsername(document.user);
+		const [calculatedUser] = await calculateBudgetLeft([user]);
+		if (
+			(calculatedUser.budgetLeft / user.autobidBudget) * 100 <=
+				100 - user.alertPercent &&
+			!user.alerted
+		) {
+			await mongoose.model('Notification').create({
+				user: user.username,
+				content: `Your auto-bidding budget has reached ${calculatedUser.alertPercent}% reserved for bids`,
+			});
+			userStore.setUser({ username: user.username, alerted: true });
 		}
 	} catch (error) {
 		console.log(error);

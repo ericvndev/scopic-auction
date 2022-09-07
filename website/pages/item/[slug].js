@@ -10,7 +10,7 @@ import Checkbox from '../../components/forms/Checkbox';
 import BiddingHistory from '../../components/BiddingHistory';
 import CountDown from '../../components/CountDown';
 
-import { formatDate, GET_FROM_API } from '../../helpers/utils';
+import { formatDate, GET_FROM_API, POST_TO_API } from '../../helpers/utils';
 
 import { useUser } from '../../lib/useUser';
 
@@ -69,20 +69,14 @@ const DetailPage = (props) => {
 		? `${process.env.NEXT_PUBLIC_API_HOST}${item.images[0]}`
 		: 'https://picsum.photos/600/400';
 
-	const submitBid = async (body, user) => {
-		const res = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/v1/bid`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `JWT ${user.token}`,
-			},
-			body: JSON.stringify(body),
-		});
-		const { error, data } = await res.json();
-		if (error) {
-			throw new Error(error);
+	const submitBid = async (body) => {
+		try {
+			const data = await POST_TO_API('/bid', body);
+			return data;
+		} catch (error) {
+			console.log(error);
+			return null;
 		}
-		return data;
 	};
 
 	const validateBid = (amount) => {
@@ -116,7 +110,7 @@ const DetailPage = (props) => {
 			enableAutoBid: checkedAutobid,
 		};
 		try {
-			await submitBid(body, user);
+			await submitBid(body);
 		} catch (error) {
 			console.log(error);
 			alert(error.message);
@@ -138,6 +132,7 @@ const DetailPage = (props) => {
 	const minPrice = Math.max(highestBid ? highestBid.amount : item.basePrice);
 	const title = `${item.name} - Scopic Auction`;
 	const notStart = new Date(item.startDateTime) > new Date();
+	const ended = new Date(item.closeDateTime) < new Date();
 
 	return (
 		<div className="container">
@@ -173,7 +168,7 @@ const DetailPage = (props) => {
 							{formatDate(item.closeDateTime)}
 						</h4>
 					)}
-					{new Date(item.closeDateTime) > new Date() && !notStart ? (
+					{!ended && !notStart ? (
 						<CountDown
 							title={'Time left'}
 							endDate={new Date(item.closeDateTime)}
@@ -181,7 +176,29 @@ const DetailPage = (props) => {
 					) : (
 						''
 					)}
-					{highestBid ? (
+					{highestBid && ended ? (
+						<>
+							<div className={styles.currentLabel}>
+								The winner is{' '}
+								{highestBid.user
+									? `${highestBid.user.firstName} ${highestBid.user.lastName}`
+									: 'N/A'}
+								{user &&
+								user.username === highestBid.user.username
+									? ` (You)`
+									: ''}
+							</div>
+							<div className={styles.currentLabel}>
+								with the highest bid at
+							</div>
+							<div className={styles.currentPrice}>
+								{highestBid.amount.toLocaleString()} USD
+							</div>
+						</>
+					) : (
+						''
+					)}
+					{highestBid && !ended ? (
 						<>
 							<div className={styles.currentLabel}>
 								Current highest bid
@@ -204,7 +221,7 @@ const DetailPage = (props) => {
 						''
 					)}
 
-					{!notStart ? (
+					{!notStart && !ended ? (
 						<div className={styles.bidding}>
 							<label htmlFor="bid-input" className={styles.label}>
 								Your price
