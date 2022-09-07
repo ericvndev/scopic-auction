@@ -30,7 +30,7 @@ const DetailPage = (props) => {
 	const { slug } = props;
 	const { user, updateUser } = useUser();
 
-	const [item, setItem] = useState(null);
+	const [item, setItem] = useState(undefined);
 	const [checkedAutobid, setCheckedAutobid] = useState(false);
 	const bids = item ? item.bids || [] : [];
 
@@ -41,6 +41,7 @@ const DetailPage = (props) => {
 			);
 			setItem(data);
 		} catch (error) {
+			setItem(null);
 			console.log(error);
 		}
 	}, []);
@@ -61,8 +62,10 @@ const DetailPage = (props) => {
 		};
 	}, []);
 
-	if (!item) {
-		return <div>Loaing...</div>;
+	if (item === undefined) {
+		return <div className="container">Loading...</div>;
+	} else if (item === null) {
+		return <div className="container">Item not found</div>;
 	}
 
 	const itemImage = item.images.length

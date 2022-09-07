@@ -74,9 +74,12 @@ router.get('/item', authCheck, async (req, res) => {
 
 	try {
 		const foundItem = await Item.findOne(parsedFilter);
+		if (!foundItem) {
+			return res.status(404).json({ error: 'Item not found' });
+		}
 		const data = foundItem.toJSON();
 
-		if (foundItem && populate) {
+		if (populate) {
 			const populateArr = populate.split(',');
 			if (populateArr.includes('bids')) {
 				const bids = await foundItem.populateBids();
@@ -162,6 +165,9 @@ router.patch(
 			await itemValidation(newItem, req, true);
 			if (req.file) {
 				newItem.images = [`/uploads/${req.file.filename}`];
+			}
+			if (newItem.name) {
+				newItem.slug = slugify(newItem.name);
 			}
 			const updatedItem = await Item.updateOne({ _id: id }, newItem);
 			res.json({ error: '', data: updatedItem });

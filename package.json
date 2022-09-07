@@ -6,6 +6,9 @@
 		"dev": "run-p dev-website dev-api-server",
 		"dev-website": "cd website && npm run dev",
 		"dev-api-server": "cd api-server && npm run dev",
+		"start": "run-p start-website start-api-server",
+		"start-website": "cd website && npm run build && npm run start",
+		"start-api-server": "cd api-server && npm run start",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Eric",
