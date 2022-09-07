@@ -62,8 +62,11 @@ const DashboardPage = (props) => {
 
 	useEffect(() => {
 		if (user && user.isLoggedIn && user.role !== 'admin') {
-			return router.push('/login');
+			router.push('/');
 		}
+	}, [user]);
+
+	useEffect(() => {
 		if (user && user.isLoggedIn && user.role === 'admin') {
 			fetchItems(1, searchString);
 		}

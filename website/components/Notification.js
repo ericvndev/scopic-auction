@@ -7,7 +7,7 @@ import Dropdown from './forms/Dropdown';
 
 const Notification = (props) => {
 	const { notifications } = props;
-	const [newNotiCount, setNewNotiCount] = useState(30);
+	const [notificationsWithNew, setNotificationsWithNew] = useState([]);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -15,25 +15,28 @@ const Notification = (props) => {
 		if (lastCheck) {
 			lastCheck = new Date(lastCheck);
 		}
-		const countNewNofi = notifications.filter(
-			(noti) => new Date(noti.createdAt) > lastCheck
-		).length;
-		setNewNotiCount(countNewNofi);
+		const notificationsWithNew = notifications.map((noti) =>
+			new Date(noti.createdAt) > lastCheck ? { ...noti, new: true } : noti
+		);
+		setNotificationsWithNew(notificationsWithNew);
 	}, [notifications]);
 
-	const handleShowNoti = () => {
+	const handleCloseNoti = () => {
 		localStorage.setItem('last-check', new Date().toISOString());
-		setNewNotiCount(0);
+		setNotificationsWithNew(notifications);
 	};
+
+	const newNotiCount = notificationsWithNew.filter((noti) => noti.new).length;
 
 	return (
 		<div className={styles.notification}>
 			<Dropdown
-				options={notifications.map((noti) => ({
+				options={notificationsWithNew.map((noti) => ({
+					highlight: noti.new,
 					text: noti.content,
 					handler: () => router.push('/setting'),
 				}))}
-				onShow={handleShowNoti}
+				onClose={handleCloseNoti}
 			>
 				<div className={styles.iconWrapper}>
 					<span className={styles.icon}>✉</span>

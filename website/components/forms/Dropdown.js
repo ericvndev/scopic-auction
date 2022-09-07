@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styles from '../../styles/Dropdown.module.css';
 
 const Dropdown = (props) => {
-	const { children, options, onShow } = props;
+	const { children, options, onClose } = props;
 	const refWrapper = useRef();
 	const [showDropdown, setShowDropdown] = useState(false);
 
@@ -15,6 +15,9 @@ const Dropdown = (props) => {
 				return;
 			}
 			setShowDropdown(false);
+			if (onClose) {
+				onClose();
+			}
 		};
 		document.body.addEventListener('click', bodyClickHandler);
 		return () => {
@@ -24,9 +27,6 @@ const Dropdown = (props) => {
 
 	const handleTriggerShow = () => {
 		setShowDropdown(true);
-		if (onShow) {
-			onShow();
-		}
 	};
 
 	return (
@@ -37,10 +37,12 @@ const Dropdown = (props) => {
 			{showDropdown ? (
 				<div className={`${styles.dropdown}`}>
 					<ul className={styles.list}>
-						{options.map((opt) => (
+						{options.map((opt, i) => (
 							<li
-								className={styles.item}
-								key={opt.text}
+								className={`${styles.item} ${
+									opt.highlight ? styles.highlight : ''
+								}`}
+								key={`${opt.text} ${i}`}
 								onClick={() => {
 									setShowDropdown(false);
 									opt.handler();
@@ -62,11 +64,13 @@ Dropdown.propTypes = {
 	children: PropTypes.node.isRequired,
 	options: PropTypes.array,
 	onShow: PropTypes.func,
+	onClose: PropTypes.func,
 };
 
 Dropdown.defaultProps = {
 	options: [],
 	onShow: null,
+	onClose: null,
 };
 
 export default Dropdown;
