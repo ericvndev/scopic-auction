@@ -1,6 +1,5 @@
 .filterBar {
 	display: flex;
-	padding: 0 16px;
 }
 
 .searchBox {
@@ -23,7 +22,6 @@
 
 .itemList {
 	display: flex;
-	padding: 0 16px;
 	flex-wrap: wrap;
 	margin: 16px -16px 0;
 }
@@ -38,4 +36,41 @@
 	width: 25%;
 	padding: 0 16px;
 	margin-bottom: 32px;
+}
+
+@media screen and (max-width: 1500px) {
+	.item {
+		width: 33.33%;
+	}
+}
+
+@media screen and (max-width: 992px) {
+	.item {
+		width: 50%;
+	}
+}
+
+@media screen and (max-width: 678px) {
+	.filterBar {
+		flex-direction: column;
+	}
+
+	.searchBox {
+		margin-right: 0;
+	}
+
+	.sort {
+		display: flex;
+		align-items: center;
+	}
+
+	.sortSelect {
+		margin-left: 8px;
+		flex-shrink: 0;
+		flex-grow: 1;
+	}
+
+	.item {
+		width: 100%;
+	}
 }

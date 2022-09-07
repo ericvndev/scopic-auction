@@ -18,6 +18,10 @@ const Modal = (props) => {
 		} else {
 			document.body.style = '';
 		}
+
+		return () => {
+			document.body.style = '';
+		};
 	}, [show]);
 
 	if (!show) {

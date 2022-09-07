@@ -12,6 +12,7 @@
 
 .left {
 	margin-right: 32px;
+	min-width: 400px;
 }
 
 .right {
@@ -23,4 +24,22 @@
 .form label {
 	font-weight: 600;
 	margin-bottom: 8px;
+}
+
+@media screen and (max-width: 992px) {
+	.form {
+		flex-direction: column;
+	}
+
+	.left {
+		margin-right: 0;
+		margin-bottom: 16px;
+	}
+
+	.right {
+		min-width: unset;
+	}
+}
+
+@media screen and (max-width: 992px) {
 }

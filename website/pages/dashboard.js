@@ -127,11 +127,17 @@ const DashboardPage = (props) => {
 			</div>
 			<table className={styles.table}>
 				<colgroup>
-					<col style={{ width: '30%' }} />
-					<col style={{ width: '30%' }} />
+					<col style={{ width: '25%' }} />
+					<col style={{ width: '25%' }} />
 					<col style={{ width: '10%' }} />
-					<col style={{ width: '10%' }} />
-					<col style={{ width: '10%' }} />
+					<col
+						style={{ width: '15%' }}
+						className={styles.hideMobile}
+					/>
+					<col
+						style={{ width: '15%' }}
+						className={styles.hideMobile}
+					/>
 					<col style={{ width: '10%' }} />
 				</colgroup>
 				<thead>
@@ -139,8 +145,12 @@ const DashboardPage = (props) => {
 						<th>Slug</th>
 						<th>Name</th>
 						<th className={styles.right}>Base Price</th>
-						<th className={styles.right}>Start Date</th>
-						<th className={styles.right}>End Date</th>
+						<th className={`${styles.right} ${styles.hideMobile}`}>
+							Start Date
+						</th>
+						<th className={`${styles.right} ${styles.hideMobile}`}>
+							End Date
+						</th>
 						<th className={styles.right}>Action</th>
 					</tr>
 				</thead>
@@ -158,10 +168,14 @@ const DashboardPage = (props) => {
 							<td className={styles.right}>
 								{item.basePrice.toLocaleString()} USD
 							</td>
-							<td className={styles.right}>
+							<td
+								className={`${styles.right} ${styles.hideMobile}`}
+							>
 								{formatDate(item.startDateTime)}
 							</td>
-							<td className={styles.right}>
+							<td
+								className={`${styles.right} ${styles.hideMobile}`}
+							>
 								{formatDate(item.closeDateTime)}
 							</td>
 							<td className={styles.right}>

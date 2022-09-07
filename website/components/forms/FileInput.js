@@ -16,12 +16,14 @@ const FileInput = (props) => {
 
 	const handleInputChange = (e) => {
 		const file = e.currentTarget.files[0];
-		const reader = new FileReader();
-		e.currentTarget.setCustomValidity('');
-		reader.onloadend = function () {
-			setImage(reader.result);
-		};
-		reader.readAsDataURL(file);
+		if (file) {
+			const reader = new FileReader();
+			e.currentTarget.setCustomValidity('');
+			reader.onloadend = function () {
+				setImage(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
 	};
 
 	const handleRemoveImage = () => {

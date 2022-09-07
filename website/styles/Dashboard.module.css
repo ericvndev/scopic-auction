@@ -1,5 +1,5 @@
 .dashboard {
-	padding: 0 32px;
+	padding: 0 16px;
 }
 
 .title {
@@ -34,14 +34,13 @@
 }
 
 .table tr {
-	height: 40px;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .table th,
 .table td {
 	text-align: left;
-	padding: 0 8px;
+	padding: 8px;
 }
 
 .table .right {
@@ -52,4 +51,10 @@
 	text-decoration: underline;
 	color: #1f54c0;
 	cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+	.hideMobile {
+		display: none;
+	}
 }
