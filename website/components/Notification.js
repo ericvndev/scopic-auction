@@ -22,8 +22,8 @@ const Notification = (props) => {
 	}, [notifications]);
 
 	const handleCloseNoti = () => {
-		localStorage.setItem('last-check', new Date().toISOString());
 		setNotificationsWithNew(notifications);
+		localStorage.setItem('last-check', new Date().toISOString());
 	};
 
 	const newNotiCount = notificationsWithNew.filter((noti) => noti.new).length;

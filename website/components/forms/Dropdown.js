@@ -9,15 +9,18 @@ const Dropdown = (props) => {
 	const [showDropdown, setShowDropdown] = useState(false);
 
 	useEffect(() => {
+		if (!showDropdown && onClose) {
+			onClose();
+		}
+	}, [showDropdown]);
+
+	useEffect(() => {
 		const bodyClickHandler = (e) => {
 			const target = e.target;
 			if (target.closest('.js-dropdown') === refWrapper.current) {
 				return;
 			}
 			setShowDropdown(false);
-			if (onClose) {
-				onClose();
-			}
 		};
 		document.body.addEventListener('click', bodyClickHandler);
 		return () => {
@@ -36,22 +39,26 @@ const Dropdown = (props) => {
 			</div>
 			{showDropdown ? (
 				<div className={`${styles.dropdown}`}>
-					<ul className={styles.list}>
-						{options.map((opt, i) => (
-							<li
-								className={`${styles.item} ${
-									opt.highlight ? styles.highlight : ''
-								}`}
-								key={`${opt.text} ${i}`}
-								onClick={() => {
-									setShowDropdown(false);
-									opt.handler();
-								}}
-							>
-								{opt.text}
-							</li>
-						))}
-					</ul>
+					{options.length ? (
+						<ul className={styles.list}>
+							{options.map((opt, i) => (
+								<li
+									className={`${styles.item} ${
+										opt.highlight ? styles.highlight : ''
+									}`}
+									key={`${opt.text} ${i}`}
+									onClick={() => {
+										setShowDropdown(false);
+										opt.handler();
+									}}
+								>
+									{opt.text}
+								</li>
+							))}
+						</ul>
+					) : (
+						<div className={styles.item}>No data</div>
+					)}
 				</div>
 			) : (
 				''

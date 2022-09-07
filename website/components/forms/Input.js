@@ -28,11 +28,13 @@ const Input = (props) => {
 
 Input.propTypes = {
 	isFull: PropTypes.bool,
+	multiline: PropTypes.bool,
 	className: PropTypes.string,
 };
 
 Input.defaultProps = {
 	isFull: false,
+	multiline: false,
 	className: '',
 };
 

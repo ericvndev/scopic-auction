@@ -15,8 +15,14 @@ const SettingPage = () => {
 
 	useEffect(() => {
 		(async () => {
-			const user = await GET_FROM_API(`/user/me?populate=autobidItems`);
-			setFullUser(user);
+			try {
+				const user = await GET_FROM_API(
+					`/user/me?populate=autobidItems`
+				);
+				setFullUser(user);
+			} catch (error) {
+				console.log(error.message);
+			}
 		})();
 	}, [user]);
 

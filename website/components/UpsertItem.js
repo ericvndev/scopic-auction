@@ -140,7 +140,7 @@ const UpsertItem = (props) => {
 							onChange={handleChangeStartDateTime}
 							defaultValue={formatDateISO(item.startDateTime)}
 						/>
-						<label>End Date Time</label>
+						<label>Close Date Time</label>
 						<Input
 							required
 							type="datetime-local"

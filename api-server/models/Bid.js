@@ -50,7 +50,7 @@ const calculateNewAutobid = async (document, sortedUsers) => {
 		}
 	}
 
-	if (validUser.budgetLeft < document.amount + 1) {
+	if (validUser && validUser.budgetLeft < document.amount + 1) {
 		return null;
 	}
 
