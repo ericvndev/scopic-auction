@@ -26,3 +26,6 @@ Open [http://localhost:8080](http://localhost:8080) with your browser to see the
 The default credentials are:
 - **Admin User:** admin1 / admin2
 - **Regular User:** user1 / user2
+
+
+To access the admin page, open [http://localhost:8080/dashboard](http://localhost:8080/dashboard) with your browser. If logging in with regular user role, you will be redirected to the home page. So make sure you logged in with admin account first.
