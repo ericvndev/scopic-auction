@@ -7,6 +7,7 @@ const cors = require('cors');
 require('dotenv').config({ path: './.env' });
 
 const db = require('./data/conn');
+const cron = require('./helpers/cron');
 
 const port = process.env.PORT || 3000;
 
@@ -27,6 +28,8 @@ httpServer.listen(port, async () => {
 	try {
 		// perform a database connection when server starts
 		await db.connect();
+		// running cron job
+		cron.init();
 		console.log(`Server is running on port: ${port}`);
 	} catch (error) {
 		console.log(error);

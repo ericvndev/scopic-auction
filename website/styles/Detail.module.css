@@ -52,20 +52,6 @@
 	margin-top: 8px;
 }
 
-.currentLabel {
-	font-weight: 600;
-	color: red;
-	font-size: 18px;
-	margin-bottom: 4px;
-}
-
-.currentPrice {
-	color: red;
-	font-size: 30px;
-	font-weight: 700;
-	margin-bottom: 4px;
-}
-
 .bidding {
 	margin-top: 40px;
 }

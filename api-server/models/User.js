@@ -9,6 +9,7 @@ const userSchema = new Schema(
 		username: { type: String, unique: true, required: true },
 		firstName: { type: String },
 		lastName: { type: String },
+		email: { type: String },
 		hashedPassword: { type: String },
 		isDeleted: { type: Boolean, default: false },
 		enableAutobid: [{ type: String }],

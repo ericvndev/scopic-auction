@@ -76,6 +76,20 @@ itemSchema.methods.populateBids = async function () {
 	}));
 };
 
+itemSchema.post('updateOne', async function (result) {
+	try {
+		if (result.modifiedCount === 1) {
+			const query = this.getQuery();
+			const fullItem = await mongoose.model('Item').findOne(query);
+			if (fullItem) {
+				global.io.to(fullItem.slug).emit('refetch');
+			}
+		}
+	} catch (error) {
+		console.log(error);
+	}
+});
+
 const Item = mongoose.model('Item', itemSchema);
 
 exports = module.exports = Item;

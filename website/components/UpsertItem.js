@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import Modal from './Modal';
@@ -15,7 +15,7 @@ const UpsertItem = (props) => {
 	const handleCloseModal = () => {
 		onClose();
 	};
-	const upsertItem = useCallback(async (newItem) => {
+	const upsertItem = async (newItem) => {
 		try {
 			if (newItem._id) {
 				await POST_FORM_DATA_TO_API(
@@ -31,7 +31,7 @@ const UpsertItem = (props) => {
 		} catch (error) {
 			alert(error.message);
 		}
-	}, []);
+	};
 
 	const handleChangeBasePrice = (e) => {
 		const basePrice = parseInt(e.currentTarget.value);

@@ -36,6 +36,7 @@ const DashboardPage = (props) => {
 
 	const fetchItems = useCallback(async (page, searchString) => {
 		try {
+			console.log(page);
 			const { items, total } = await GET_FROM_API(
 				`/items?limit=10&skip=${
 					(page - 1) * 10
@@ -68,6 +69,7 @@ const DashboardPage = (props) => {
 
 	useEffect(() => {
 		if (user && user.isLoggedIn && user.role === 'admin') {
+			setPage(1);
 			fetchItems(1, searchString);
 		}
 	}, [user, searchString]);

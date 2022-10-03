@@ -15,6 +15,7 @@ import { formatDate, GET_FROM_API, POST_TO_API } from '../../helpers/utils';
 import { useUser } from '../../lib/useUser';
 
 import styles from '../../styles/Detail.module.css';
+import BiddingAnnounce from '../../components/BiddingAnnounce';
 
 const getServerSideProps = (context) => {
 	const { query } = context;
@@ -179,50 +180,12 @@ const DetailPage = (props) => {
 					) : (
 						''
 					)}
-					{highestBid && ended ? (
-						<>
-							<div className={styles.currentLabel}>
-								The winner is{' '}
-								{highestBid.user
-									? `${highestBid.user.firstName} ${highestBid.user.lastName}`
-									: 'N/A'}
-								{user &&
-								user.username === highestBid.user.username
-									? ` (You)`
-									: ''}
-							</div>
-							<div className={styles.currentLabel}>
-								with the highest bid at
-							</div>
-							<div className={styles.currentPrice}>
-								{highestBid.amount.toLocaleString()} USD
-							</div>
-						</>
-					) : (
-						''
-					)}
-					{highestBid && !ended ? (
-						<>
-							<div className={styles.currentLabel}>
-								Current highest bid
-							</div>
-							<div className={styles.currentPrice}>
-								{highestBid.amount.toLocaleString()} USD
-							</div>
-							<div className={styles.currentLabel}>
-								by{' '}
-								{highestBid.user
-									? `${highestBid.user.firstName} ${highestBid.user.lastName}`
-									: 'N/A'}
-								{user &&
-								user.username === highestBid.user.username
-									? ` (You)`
-									: ''}
-							</div>
-						</>
-					) : (
-						''
-					)}
+
+					<BiddingAnnounce
+						highestBid={highestBid}
+						ended={ended}
+						user={user}
+					/>
 
 					{!notStart && !ended ? (
 						<div className={styles.bidding}>

@@ -1,3 +1,5 @@
+const nodemailer = require('nodemailer');
+
 const replaceVNCharacter = (st) => {
 	let str = st;
 
@@ -36,6 +38,56 @@ const slugify = (st) => {
 	return str;
 };
 
+const sendMail = (to, { subject, html }) => {
+	return new Promise((resolve, reject) => {
+		if (!to || !html) {
+			reject(new Error('Invalid email options'));
+		}
+		if (!process.env.ADMIN_EMAIL_APP_PASSWORD) {
+			reject(
+				new Error(
+					'You must set ADMIN_EMAIL_APP_PASSWORD in then .env file'
+				)
+			);
+		}
+		const transporter = nodemailer.createTransport({
+			host: 'smtp.googlemail.com',
+			port: 465,
+			secure: true,
+			auth: {
+				user: process.env.ADMIN_EMAIL,
+				pass: process.env.ADMIN_EMAIL_APP_PASSWORD,
+			},
+		});
+
+		const mailOptions = {
+			from: process.env.ADMIN_EMAIL,
+			to: to,
+			subject: subject,
+			html: html,
+		};
+
+		transporter.sendMail(mailOptions, function (error, info) {
+			if (error) {
+				console.log(error);
+				reject(error);
+			} else {
+				console.log('Email sent: ' + info.response);
+				resolve(info.response);
+			}
+		});
+	});
+};
+
+const formatDate = (d) => {
+	const date = new Date(d);
+	return `${date.getHours()}:${date.getMinutes()} - ${date.getDate()}/${
+		date.getMonth() + 1
+	}/${date.getFullYear()}`;
+};
+
 exports = module.exports = {
 	slugify,
+	sendMail,
+	formatDate,
 };
