@@ -63,6 +63,12 @@ const Header = () => {
 					<Dropdown
 						options={[
 							{
+								text: 'Profile',
+								handler: () => {
+									router.push('/profile');
+								},
+							},
+							{
 								text: 'Bid Settings',
 								handler: () => {
 									router.push('/setting');

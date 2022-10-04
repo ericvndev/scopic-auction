@@ -57,7 +57,7 @@ itemSchema.virtual('highestBid', {
 	localField: '_id',
 	foreignField: 'itemId',
 	justOne: true,
-	options: { sort: { amount: -1 }, limit: 1 },
+	options: { sort: { amount: -1 } },
 });
 
 itemSchema.methods.populateBids = async function () {

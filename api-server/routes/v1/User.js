@@ -7,6 +7,8 @@ const authCheck = require('../../middlewares/auth');
 const User = require('../../models/User');
 const UserStore = require('../../data/users');
 const Item = require('../../models/Item');
+const Bid = require('../../models/Bid');
+const Bill = require('../../models/Bill');
 const userStore = UserStore.getInstance();
 
 router.post('/user/login', async (req, res) => {
@@ -70,6 +72,30 @@ const populateAutobidItems = async (user) => {
 	}));
 };
 
+const populateBidItems = async (user) => {
+	const bidByUser = await Bid.find({ user: user.username });
+	const itemIds = {};
+
+	bidByUser.forEach((bid) => {
+		if (!itemIds[bid.itemId]) {
+			itemIds[bid.itemId] = true;
+		}
+	});
+
+	const bidItems = await Item.find({ _id: { $in: Object.keys(itemIds) } })
+		.populate({ path: 'highestBid' })
+		.lean()
+		.exec();
+	console.log(bidItems);
+
+	return bidItems;
+};
+
+const populateBill = async (user) => {
+	const bill = await Bill.find({ user: user.username }).lean();
+	return bill;
+};
+
 router.get('/user/me', authCheck, async (req, res) => {
 	if (!req.user) {
 		return res.status(401).json({ error: 'Unauthorized' });
@@ -82,6 +108,12 @@ router.get('/user/me', authCheck, async (req, res) => {
 		const populateArr = populate.split(',');
 		if (populateArr.includes('autobidItems')) {
 			user.autobidItems = await populateAutobidItems(user);
+		}
+		if (populateArr.includes('bidItems')) {
+			user.bidItems = await populateBidItems(user);
+		}
+		if (populateArr.includes('bills')) {
+			user.bills = await populateBill(user);
 		}
 	}
 

@@ -21,7 +21,7 @@ notificationSchema.post('save', async (document) => {
 	const user = userStore.getUserByUsername(document.user);
 	if (user) {
 		try {
-			await sendMail(user.email, {
+			sendMail(user.email, {
 				subject: 'Scopic Auction Notification',
 				html: `
 				<html>

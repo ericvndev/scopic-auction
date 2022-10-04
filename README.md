@@ -29,3 +29,7 @@ The default credentials are:
 
 
 To access the admin page, open [http://localhost:8080/dashboard](http://localhost:8080/dashboard) with your browser. If logging in with regular user role, you will be redirected to the home page. So make sure you logged in with admin account first.
+
+For email sending functionality, please update your configuration in the .env file (current only supports Gmail)\
+- **ADMIN_EMAIL**: Gmail address you want to send mail from
+- **ADMIN_EMAIL_APP_PASSWORD**: Google App Password. You can create Google App Password associating with the Gmail above by logging in and then open this address [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) (Need to enable 2-step verification first)

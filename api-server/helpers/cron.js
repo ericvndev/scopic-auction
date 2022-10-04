@@ -11,24 +11,25 @@ const findWinnerAndLosers = (bids) => {
 		})
 		.pop();
 	const winner = highestBid ? highestBid.user : {};
-	const losers = bids.reduce(
-		(result, bid) =>
-			bid.user.username !== highestBid.user.username
-				? [...result, bid.user]
-				: result,
-		[]
-	);
+	const losers = {};
+	bids.forEach((bid) => {
+		if (
+			bid.user.username !== highestBid.user.username &&
+			!losers[bid.user.username]
+		) {
+			losers[bid.user.username] = bid.user;
+		}
+	});
 
-	return { winner, highestBid, losers };
+	return {
+		winner,
+		highestBid,
+		losers: Object.keys(losers).map((k) => losers[k]),
+	};
 };
 
 const generateContent = (item, winner) => {
-	let and = '';
-	if (!winner) {
-		and = `And there was no one make a bid on this item.`;
-	} else {
-		and = `And the winner is "${winner.firstName} ${winner.lastName}"`;
-	}
+	const and = `And the winner is "${winner.firstName} ${winner.lastName}"`;
 	return `The bidding time for item ${item.name} has just finished. ${and}`;
 };
 
@@ -48,20 +49,23 @@ exports = module.exports = {
 				// need to use dataloader when huge amount of items end at same time
 				for (const item of foundJustEndedItems) {
 					const bids = await item.populateBids();
-					const { winner, highestBid, losers } =
-						findWinnerAndLosers(bids);
-					await Notification.create(
-						[winner, ...losers].map((user) => ({
-							user: user.username,
-							content: generateContent(item, winner),
-						}))
-					);
-					await Bill.create({
-						itemId: item._id,
-						user: highestBid.user.username,
-						amount: highestBid.amount,
-						bid: highestBid._id,
-					});
+					if (bids && bids.length) {
+						const { winner, highestBid, losers } =
+							findWinnerAndLosers(bids);
+						await Notification.create(
+							[winner, ...losers].map((user) => ({
+								user: user.username,
+								content: generateContent(item, winner),
+							}))
+						);
+						await Bill.create({
+							itemId: item._id,
+							user: highestBid.user.username,
+							amount: highestBid.amount,
+							bid: highestBid._id,
+							issueDate: new Date(),
+						});
+					}
 				}
 			},
 			null,

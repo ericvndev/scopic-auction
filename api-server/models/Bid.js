@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const UserStore = require('../data/users');
+const { sendMail } = require('../helpers/utils');
 const userStore = UserStore.getInstance();
 
 const { Schema } = mongoose;
@@ -136,10 +137,69 @@ bidSchema.post('save', async (document) => {
 	try {
 		const foundItem = await mongoose
 			.model('Item')
-			.findOne({ _id: document.itemId })
-			.lean();
+			.findOne({ _id: document.itemId });
+		const user = userStore.getUserByUsername(document.user);
+		if (foundItem && user) {
+			try {
+				sendMail(user.email, {
+					subject: 'Scopic Auction Notification - New bid by you',
+					html: `
+				<html>
+					<body>
+						<p>Hi ${user.firstName},</p>
+						<p>A new bid has been made by you on the item "${
+							foundItem.name
+						}" with the price at ${document.amount.toLocaleString()}. If it's not you or you think this is a mistake, please contact us as soon as you can to resolve the problem.</p>
+						<p>
+							Best Regards,<br />
+							Scopic Auction Teams
+						</p>
+					</body>
+				</html>
+				`,
+				});
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	} catch (error) {
+		console.log(error);
+	}
+});
+bidSchema.post('save', async (document) => {
+	try {
+		const foundItem = await mongoose
+			.model('Item')
+			.findOne({ _id: document.itemId });
 		if (foundItem) {
 			global.io.to(foundItem.slug).emit('refetch');
+			const bids = await mongoose
+				.model('Bid')
+				.find({ itemId: document.itemId })
+				.lean();
+			const usernames = {};
+			bids.forEach((bid) => {
+				if (!usernames[bid.user]) {
+					usernames[bid.user] = true;
+				}
+			});
+			const users = userStore.getUsersByUsername(Object.keys(usernames));
+			const [bidUser] = users.splice(
+				users.findIndex((user) => user.username === document.user),
+				1
+			);
+			if (users.length) {
+				await mongoose.model('Notification').create(
+					users.map((user) => ({
+						user: user.username,
+						content: `A new bid on the item "${
+							foundItem.name
+						}" has been made by user ${
+							bidUser.firstName
+						} with the price at ${document.amount.toLocaleString()}USD`,
+					}))
+				);
+			}
 		}
 	} catch (error) {
 		console.log(error);

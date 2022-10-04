@@ -12,6 +12,7 @@ const billSchema = new Schema(
 		user: { type: String },
 		itemId: { type: Schema.Types.ObjectId, ref: 'Item' },
 		amount: Number,
+		issueDate: { type: Date },
 		bidId: { type: Schema.Types.ObjectId, ref: 'Bid' },
 	},
 	{
@@ -34,7 +35,7 @@ billSchema.post('save', async (document) => {
 						item.name
 					}. Below is the bill for your winning bid:</p>
 
-					<p>Issue Date: ${formatDate(new Date())}</p>
+					<p>Issue Date: ${formatDate(new Date(document.issueDate))}</p>
 					<table>
 						<thead>
 							<tr>
@@ -52,7 +53,7 @@ billSchema.post('save', async (document) => {
 						</tbody>
 					</table>
 					<p>
-					<strong>Total: ${document.amount.toLocaleString()}</strong>
+					<strong>Total: ${document.amount.toLocaleString()}USD</strong>
 					</p>
 					<p>
 						Best Regards,<br />
